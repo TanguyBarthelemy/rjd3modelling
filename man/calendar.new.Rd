@@ -21,12 +21,12 @@ calendar.holiday(belgiumCalendar, "ASSUMPTION")
 calendar.holiday(belgiumCalendar, "ALLSAINTSDAY")
 calendar.holiday(belgiumCalendar, "ARMISTICE")
 calendar.singledate(belgiumCalendar, "2022-05-13")
-M<-td(12, c(1980,1), 120, c(1,1,1,1,2,3,0), contrasts = FALSE)
+M<-td(12, c(1980,1), 120, groups = c(1,1,1,1,2,3,0), contrasts = FALSE)
 
-H<-htd(belgiumCalendar, 12, c(1980,1), 120, c(1,1,1,1,1,2,0), contrasts = FALSE)
+H<-htd(belgiumCalendar, 12, c(1980,1), 120, groups = c(1,1,1,1,1,2,0), contrasts = FALSE)
 
-MC<-td(4, c(1980,1), 120, c(1,1,1,1,1,2,0), contrasts = TRUE)
-HC<-htd(belgiumCalendar, 4, c(1980,1), 120, c(1,1,1,1,1,2,0), contrasts = TRUE)
+MC<-td(4, c(1980,1), 120, groups = c(1,1,1,1,1,2,0), contrasts = TRUE)
+HC<-htd(belgiumCalendar, 4, c(1980,1), 120, groups = c(1,1,1,1,1,2,0), contrasts = TRUE)
 
 C12<-longTermMean(belgiumCalendar, 12)
 C4<-longTermMean(belgiumCalendar, 4)

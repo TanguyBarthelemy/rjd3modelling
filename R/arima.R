@@ -34,7 +34,8 @@ sarima.model<-function(name="sarima", period, phi=NULL, d=0, theta=NULL, bphi=NU
 #' plot(x, type = "line")
 #' @export
 sarima.random<-function(model, length, stde=5){
-  if (class(model) != "JD3_SARIMA") stop("Invalid model")
+  if (!inherits(model, "JD3_SARIMA"))
+    stop("Invalid model")
   return (.jcall("demetra/arima/r/SarimaModels", "[D", "random",
          as.integer(length),
          as.integer(model$period),
@@ -53,7 +54,7 @@ sarima.random<-function(model, length, stde=5){
 #' @param ar Coefficients of the regular auto-regressive polynomial (1 + ar(1)B + ar(2)B + ...). True signs.
 #' @param delta The non stationary auto-regressive polynomial.
 #' @param ma Coefficients of the regular moving average polynomial (1 + ma(1)B + ma(2)B + ...). True signs.
-#' @param variance the innovation variance
+#' @param variance the innovation variance.
 #'
 #' @return a `"JD3_ARIMA"` model.
 #' @export
@@ -75,6 +76,8 @@ jd2r_sarima<-function(jsarima){
   return (p2r_sarima(rq))
 }
 
+#' @export
+#' @rdname jd3_utilities
 r2jd_sarima<-function(model){
   return (.jcall("demetra/arima/r/SarimaModels", "Ljdplus/sarima/SarimaModel;", "of",
                  as.integer(model$period),
@@ -176,6 +179,8 @@ r2jd_ucarima<-function(ucm){
   return (.jcall("demetra/arima/r/UcarimaModels", "Ljdplus/ucarima/UcarimaModel;", "of", jmodel, jcmps))
 }
 
+#' @export
+#' @rdname jd3_utilities
 jd2r_ucarima<-function(jucm){
 #  model<-.jcall(jucm, "Ljdplus/arima/ArimaModel;", "sum")
 #  jcmps<-.jcall(jucm, "[Ljdplus/arima/ArimaModel;", "getComponents")

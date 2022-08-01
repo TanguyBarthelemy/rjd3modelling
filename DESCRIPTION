@@ -1,28 +1,31 @@
 Package: rjd3modelling
 Type: Package
-Title: Interface to 'JDemetra+ 3.0' Seasonal Adjustment Software
+Title: Time Series Modelling Functions with 'JDemetra+ 3.0'
 Version: 0.3.2
 Authors@R: c(
   person("Jean", "Palate", role = c("aut", "cre"),
-                email = "jean.palate@nbb.be"))
-Description: Interface around 'JDemetra+ 3.x' arima-toolkit (<https://github.com/jdemetra/jdemetra-core>), STACE project. 
+                email = "jean.palate@nbb.be"),
+  person("Alain", "Quartier-la-Tente", role = c("aut"),
+                 email = "alain.quartier@yahoo.fr",
+                 comment = c(ORCID = "0000-0001-7890-3857")))
+Description: Interface around 'JDemetra+ 3.x' (<https://github.com/jdemetra/jdemetra-core>) seasonal adjustment software, STACE project.
+ It offers access to several functions model time series: create outlier regressors, user-defined calendar regressors, trading-days tests,
+ UCARIMA models and other tools around seasonal adjustment.
 Depends:
   R (>= 3.6)
 Imports:
   rJava (>= 1.0-6),
 	RProtoBuf (>= 0.4.17),
   rjd3toolkit (>= 0.3.2),
-  methods,
-  mathjaxr
-SystemRequirements: Java SE 8 or higher
+  methods
+SystemRequirements: Java JRE 17 or higher
 License: EUPL
-URL: https://github.com/jdemetra/rjd3modelling
+URL: https://github.com/palatej/rjd3modelling
 LazyData: TRUE
-RoxygenNote: 7.1.2
+RoxygenNote: 7.2.0
 Roxygen: list(markdown = TRUE)
-BugReports: https://github.com/jdemetra/rjdemetra3/issues
+BugReports: https://github.com/palatej/rjd3modelling/issues
 Encoding: UTF-8
-RdMacros: mathjaxr
 Collate: 
     'jd3_r.R'
     'protobuf.R'
