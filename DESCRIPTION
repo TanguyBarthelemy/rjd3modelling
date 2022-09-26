@@ -1,7 +1,7 @@
 Package: rjd3modelling
 Type: Package
 Title: Time Series Modelling Functions with 'JDemetra+ 3.0'
-Version: 0.4.0
+Version: 0.4.1
 Authors@R: c(
   person("Jean", "Palate", role = c("aut", "cre"),
                 email = "jean.palate@nbb.be"),
@@ -16,8 +16,9 @@ Depends:
 Imports:
   rJava (>= 1.0-6),
 	RProtoBuf (>= 0.4.17),
-  rjd3toolkit (>= 0.4.0),
-  methods
+  rjd3toolkit (>= 0.4.1),
+  methods,
+  checkmate
 SystemRequirements: Java JRE 17 or higher
 License: EUPL
 URL: https://github.com/palatej/rjd3modelling
@@ -32,6 +33,7 @@ Collate:
     'arima.R'
     'calendars.R'
     'differencing.R'
+    'modellingcontext.R'
     'regarima_generic.R'
     'regarima_rslts.R'
     'regarima_spec.R'

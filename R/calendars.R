@@ -1,7 +1,15 @@
+#' @import checkmate
 #' @importFrom methods is
 #' @importFrom stats frequency is.ts start
 #' @include protobuf.R jd3_r.R
 NULL
+
+HOLIDAY='JD3_HOLIDAY'
+FIXEDDAY='JD3_FIXEDDAY'
+FIXEDWEEKDAY='JD3_FIXEDWEEKDAY'
+EASTERDAY='JD3_EASTERDAY'
+SPECIALDAY='JD3_SPECIALDAY'
+SINGLEDAY='JD3_SINGLEDAY'
 
 #' Create a calendar
 #'
@@ -41,7 +49,7 @@ calendar.new<-function(){
 
 #' @export
 #' @rdname jd3_utilities
-r2p_validityPeriod<-function(start, end){
+.r2p_validityPeriod<-function(start, end){
   vp<-jd3.ValidityPeriod$new()
   if (is.null(start)) {
     pstart=rjd3toolkit::DATE_MIN
@@ -61,7 +69,7 @@ r2p_validityPeriod<-function(start, end){
 
 #' @export
 #' @rdname jd3_utilities
-p2r_validityPeriod<-function(vp){
+.p2r_validityPeriod<-function(vp){
   pstart<-vp$start
   if (pstart == rjd3toolkit::DATE_MIN)
     start<-NULL
@@ -73,8 +81,10 @@ p2r_validityPeriod<-function(vp){
     end<-NULL
   else
     end<-as.Date(sprintf("%04i-%02i-%02i", pend$year, pend$month, pend$day))
-
-  return (list(start=start, end=end))
+  if (is.null(start) && is.null(end))
+    return (NULL)
+  else
+    return (list(start=start, end=end))
 }
 
 #' @importFrom stats is.mts ts
@@ -103,30 +113,33 @@ calendar.fixedday<-function(calendar, month, day, weight=1, start=NULL, end=NULL
   fd$month<-month
   fd$day<-day
   fd$weight<-weight
-  fd$validity<-r2p_validityPeriod(start, end)
+  fd$validity<-.r2p_validityPeriod(start, end)
   n<-1+length(calendar$fixed_days)
   calendar$fixed_days[[n]]<-fd
 }
 
 #' @export
-fixedday<-function(month, day, weight=1, start=NULL, end=NULL){
-  return (structure(list(month=month, day=day, weight=weight, validity=list(start=start, end=end)), class='JD3_FIXEDDAY'))
+fixed_day<-function(month, day, weight=1, validity=NULL){
+  return (structure(list(month=month, day=day, weight=weight, validity=validity), class=c(FIXEDDAY, HOLIDAY)))
 }
 
 #' @export
 #' @rdname jd3_utilities
-p2r_fixedday<-function(p){
-  return (structure(list(month=p$month, day=p$day, weight=p$weight, validity=p2r_validityPeriod(p$validity)), class='JD3_FIXEDDAY'))
+.p2r_fixedday<-function(p){
+  return (structure(list(month=p$month, day=p$day, weight=p$weight, validity=.p2r_validityPeriod(p$validity)), class=FIXEDDAY))
 }
 
 #' @export
 #' @rdname jd3_utilities
-r2p_fixedday<-function(r){
+.r2p_fixedday<-function(r){
   fd<-jd3.FixedDay$new()
   fd$month<-r$month
   fd$day<-r$day
   fd$weight<-r$weight
-  fd$validity<-r2p_validityPeriod(r$validity$start, r$validity$end)
+  if (is.null(r$validity))
+    fd$validity<-.r2p_validityPeriod(NULL, NULL)
+  else
+    fd$validity<-.r2p_validityPeriod(r$validity$start, r$validity$end)
 
   return (fd)
 }
@@ -147,9 +160,35 @@ calendar.fixedweekday<-function(calendar, month, week,
   fd$position <- week
   fd$weekday <- dayofweek
   fd$weight<-weight
-  fd$validity<-r2p_validityPeriod(start, end)
+  fd$validity<-.r2p_validityPeriod(start, end)
   n<-1+length(calendar$fixed_week_days)
   calendar$fixed_week_days[[n]]<-fd
+}
+
+#' @export
+fixed_week_day<-function(month, week, dayofweek, weight=1, validity=NULL){
+  return (structure(list(month=month, week=week, dayofweek=dayofweek, weight=weight, validity=validity), class=c(FIXEDWEEKDAY, HOLIDAY)))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.p2r_fixedweekday<-function(p){
+  return (fixed_week_day(p$month, week=p$position, dayofweek=p$weekday, weight=p$weight, validity=.p2r_validityPeriod(p$validity)))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2p_fixedweekday<-function(r){
+  fd<-jd3.FixedWeekDay$new()
+  fd$month<-r$month
+  fd$position <- r$week
+  fd$weekday <- r$dayofweek
+  fd$weight<-r$weight
+  if (is.null(r$validity))
+    fd$validity<-.r2p_validityPeriod(NULL, NULL)
+  else
+    fd$validity<-.r2p_validityPeriod(r$validity$start, r$validity$end)
+  return (fd)
 }
 
 #' Add Easter related day to a calendar
@@ -168,10 +207,36 @@ calendar.easter<-function(calendar, offset, julian=FALSE, weight=1, start=NULL, 
   ed$offset<-offset
   ed$julian<-julian
   ed$weight<-weight
-  ed$validity<-r2p_validityPeriod(start, end)
+  ed$validity<-.r2p_validityPeriod(start, end)
   n<-1+length(calendar$easter_related_days)
   calendar$easter_related_days[[n]]<-ed
 }
+
+#' @export
+easter_day<-function(offset, julian=FALSE, weight=1, validity=NULL){
+  return (structure(list(offset=offset, julian=julian, weight=weight, validity=validity), class=c(EASTERDAY, HOLIDAY)))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.p2r_easterday<-function(p){
+  return (easter_day(p$offset, p$julian, p$weight, .p2r_validityPeriod(p$validity)))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2p_easterday<-function(r){
+  fd<-jd3.EasterRelatedDay$new()
+  fd$offset<-r$offset
+  fd$julian<-r$julian
+  fd$weight<-r$weight
+  if (is.null(r$validity))
+    fd$validity<-.r2p_validityPeriod(NULL, NULL)
+  else
+    fd$validity<-.r2p_validityPeriod(r$validity$start, r$validity$end)
+  return (fd)
+}
+
 
 #' Add Single Date to a Calendar
 #'
@@ -189,6 +254,25 @@ calendar.singledate<-function(calendar, date, weight=1){
   calendar$single_dates[[n]]<-sd
 }
 
+#' @export
+single_day<-function(date, weight=1){
+  return (structure(list(date=date, weight=weight), class=c(SINGLEDAY, HOLIDAY)))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.p2r_singleday<-function(p){
+  return (single_day(rjd3toolkit::p2r_date(p$date), p$weight))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2p_singleday<-function(r){
+  sd<-jd3.SingleDate$new()
+  sd$date<-rjd3toolkit::parseDate(r$date)
+  sd$weight<-r$weight
+  return (sd)
+}
 
 #' Add specific holiday to a calendar
 #'
@@ -231,9 +315,34 @@ calendar.holiday<-function(calendar, event, offset=0, weight=1, start=NULL, end=
   pd$event<-rjd3toolkit::enum_of(jd3.CalendarEvent, event, "HOLIDAY")
   pd$offset<-offset
   pd$weight<-weight
-  pd$validity<-r2p_validityPeriod(start, end)
+  pd$validity<-.r2p_validityPeriod(start, end)
   n<-1+length(calendar$prespecified_holidays)
   calendar$prespecified_holidays[[n]]<-pd
+}
+
+#' @export
+special_day<-function(event, offset=0, weight=1, validity=NULL){
+  return (structure(list(event=event, offset=offset, weight=weight, validity=validity), class=c(SPECIALDAY, HOLIDAY)))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.p2r_specialday<-function(p){
+  return (special_day(rjd3toolkit::enum_extract(jd3.CalendarEvent, p$event), p$offset, p$weight, .p2r_validityPeriod(p$validity)))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2p_specialday<-function(r){
+  pd<-jd3.PrespecifiedHoliday$new()
+  pd$event<-rjd3toolkit::enum_of(jd3.CalendarEvent, r$event, "HOLIDAY")
+  pd$offset<-r$offset
+  pd$weight<-r$weight
+  if (is.null(r$validity))
+    pd$validity<-.r2p_validityPeriod(NULL, NULL)
+  else
+    pd$validity<-.r2p_validityPeriod(r$validity$start, r$validity$end)
+  return (pd)
 }
 
 p2jd_calendar<-function(pcalendar){
@@ -401,4 +510,131 @@ stock.td<-function(frequency, start, length, s, w = 31){
   colnames(data) <- c("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday")
   return (ts(data, frequency = frequency, start= start))
 }
+
+#' @export
+#' @rdname jd3_utilities
+.p2r_calendar<-function(p){
+  return (structure(
+    c(lapply(p$fixed_days, function(z) .p2r_fixedday(z)),
+      lapply(p$fixed_week_days, function(z) .p2r_fixedweekday(z)),
+      lapply(p$easter_related_days, function(z) .p2r_easterday(z)),
+      lapply(p$prespecified_holidays, function(z) .p2r_specialday(z)),
+      lapply(p$single_dates, function(z) .p2r_singleday(z))
+  ), class=c('JD3_CALENDAR', 'JD3_CALENDARDEFINITION')))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2p_calendar<-function(r){
+  p<-jd3.Calendar$new()
+  #select fixed days
+  sel<-which(sapply(r,function(z) is(z, FIXEDDAY)))
+  p$fixed_days<-lapply(r[sel], function(z) .r2p_fixedday(z))
+  #select fixed week days
+  sel<-which(sapply(r,function(z) is(z, FIXEDDAY)))
+  p$fixed_week_days<-lapply(r[sel], function(z) .r2p_fixedweekday(z))
+  # select easter days
+  sel<-which(sapply(r,function(z) is(z, EASTERDAY)))
+  p$easter_related_days<-lapply(r[sel], function(z) .r2p_easterday(z))
+  # select special days
+  sel<-which(sapply(r,function(z) is(z, SPECIALDAY)))
+  p$prespecified_holidays<-lapply(r[sel], function(z) .r2p_specialday(z))
+  # select single days
+  sel<-which(sapply(r,function(z) is(z, SINGLEDAY)))
+  p$single_dates<-lapply(r[sel], function(z) .r2p_singleday(z))
+  return (p)
+}
+
+#' Title
+#'
+#' @param calendar1
+#' @param calendar2
+#' @param break_date
+#'
+#' @return
+#' @export
+#'
+#' @examples
+chained_calendar<-function(calendar1, calendar2, break_date){
+  return (structure(list(
+    calendar1=calendar1,
+    calendar2=calendar2,
+    break_date=break_date
+  )), class=c('JD3_CHAINEDCALENDAR', 'JD3_CALENDARDEFINITION'))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.p2r_chainedcalendar<-function(p){
+  return (chained_calendar(p$calendar1, p$calendar2, rjd3toolkit::p2r_date(p$break_date)))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2p_chainedcalendar<-function(r){
+  pc<-jd3.ChainedCalendar$new()
+  pc$calendar1<-.r2p_calendardef(r$calendar1)
+  pc$calendar2<-.r2p_calendardef(r$calendar2)
+  pc$break_date<-rjd3toolkit::parseDate(r$break_date)
+  return (pc)
+}
+
+#' Title
+#'
+#' @param calendars
+#' @param weights
+#'
+#' @return
+#' @export
+#'
+#' @examples
+weighted_calendar<-function(calendars, weights){
+  checkmate::assertNames(calendars)
+  checkmate::assertNumeric(weights)
+  if (length(calendars) != length(weights)) stop("Calendars and weights should have the same length")
+
+  return (structure(list(calendars=calendars, weights=weights)), class=c('JD3_WEIGHTEDCALENDAR', 'JD3_CALENDARDEFINITION'))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.p2r_wcalendar<-function(p){
+  calendars<-sapply(p, function(item){return (item$calendar)})
+  weights<-sapply(p, function(item){return (item$weights)})
+  return (weighted_calendar(calendars, weights))
+
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2p_wcalendar<-function(r){
+  n<-length(r$calendars)
+  p$items<-lapply(1:n, function(i){return (list(calendar=r$calendars[i], weight=r$weights[i]))})
+}
+
+#' @export
+#' @rdname jd3_utilities
+.p2r_calendardef<-function(p){
+  if (p$has('calendar')) return (.p2r_calendar(p$calendar))
+  if (p$has('chained_calendar')) return (.p2r_chainedcalendar(p$chained_calendar))
+  if (p$has('weighted_calendar')) return (.p2r_wcalendar(p$weighted_calendar))
+  return (NULL)
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2p_calendardef<-function(r){
+  p<-jd3.CalendarDefinition$new()
+  if (is(r, 'JD3_CALENDAR')){p$calendar<-.r2p_calendar(r)}
+  else if (is(r, 'JD3_CHAINEDCALENDAR')){p$calendar<-.r2p_chainedcalendar(r)}
+  else if (is(r, 'JD3_WEIGHTEDCALENDAR')){p$calendar<-.r2p_wcalendar(r)}
+  return (p)
+}
+
+
+national_calendar<-function(days){
+
+}
+
+
 
