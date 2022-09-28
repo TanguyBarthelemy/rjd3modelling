@@ -118,7 +118,19 @@ calendar.fixedday<-function(calendar, month, day, weight=1, start=NULL, end=NULL
   calendar$fixed_days[[n]]<-fd
 }
 
+#' Title
+#'
+#' @param month
+#' @param day
+#' @param weight
+#' @param validity
+#'
+#' @return
 #' @export
+#'
+#' @examples
+#' day<-fixed_day(7, 21, .9) # 21 July, with weight=0.9
+#' day
 fixed_day<-function(month, day, weight=1, validity=NULL){
   return (structure(list(month=month, day=day, weight=weight, validity=validity), class=c(FIXEDDAY, HOLIDAY)))
 }
@@ -165,7 +177,23 @@ calendar.fixedweekday<-function(calendar, month, week,
   calendar$fixed_week_days[[n]]<-fd
 }
 
+#' Title
+#'
+#' @param month Month of the holiday
+#' @param week Position of the specified week day in the month (3 = third <dayofweek> of the month... ). Should be always lower than 5.
+#' -1 for the last <dayofweek> of the month
+#' @param dayofweek Day of week 1 for Monday, 7 for Sunday
+#' @param weight
+#' @param validity
+#'
+#' @return
 #' @export
+#'
+#' @examples
+#' day<-fixed_week_day(7, 2, 3) # second Tuesday of July
+#' day
+
+#'
 fixed_week_day<-function(month, week, dayofweek, weight=1, validity=NULL){
   return (structure(list(month=month, week=week, dayofweek=dayofweek, weight=weight, validity=validity), class=c(FIXEDWEEKDAY, HOLIDAY)))
 }
@@ -513,6 +541,17 @@ stock.td<-function(frequency, start, length, s, w = 31){
 
 #' @export
 #' @rdname jd3_utilities
+.r2p_holiday<-function(r){
+  if (is(r, SPECIALDAY)){return (.r2p_specialday(r))}
+  if (is(r, FIXEDDAY)){return (.r2p_fixedday(r))}
+  if (is(r, EASTERDAY)){return (.r2p_easterday(r))}
+  if (is(r, FIXEDWEEKDAY)){return (.r2p_fixedweekday(r))}
+  if (is(r, SINGLEDAY)){return (.r2p_singleday(r))}
+  return (NULL)
+}
+
+#' @export
+#' @rdname jd3_utilities
 .p2r_calendar<-function(p){
   return (structure(
     c(lapply(p$fixed_days, function(z) .p2r_fixedday(z)),
@@ -527,21 +566,23 @@ stock.td<-function(frequency, start, length, s, w = 31){
 #' @rdname jd3_utilities
 .r2p_calendar<-function(r){
   p<-jd3.Calendar$new()
-  #select fixed days
-  sel<-which(sapply(r,function(z) is(z, FIXEDDAY)))
-  p$fixed_days<-lapply(r[sel], function(z) .r2p_fixedday(z))
-  #select fixed week days
-  sel<-which(sapply(r,function(z) is(z, FIXEDDAY)))
-  p$fixed_week_days<-lapply(r[sel], function(z) .r2p_fixedweekday(z))
-  # select easter days
-  sel<-which(sapply(r,function(z) is(z, EASTERDAY)))
-  p$easter_related_days<-lapply(r[sel], function(z) .r2p_easterday(z))
-  # select special days
-  sel<-which(sapply(r,function(z) is(z, SPECIALDAY)))
-  p$prespecified_holidays<-lapply(r[sel], function(z) .r2p_specialday(z))
-  # select single days
-  sel<-which(sapply(r,function(z) is(z, SINGLEDAY)))
-  p$single_dates<-lapply(r[sel], function(z) .r2p_singleday(z))
+  if (length(r)>0){
+    #select fixed days
+    sel<-which(sapply(r,function(z) is(z, FIXEDDAY)))
+    p$fixed_days<-lapply(r[sel], function(z) .r2p_fixedday(z))
+    #select fixed week days
+    sel<-which(sapply(r,function(z) is(z, FIXEDWEEKDAY)))
+    p$fixed_week_days<-lapply(r[sel], function(z) .r2p_fixedweekday(z))
+    # select easter days
+    sel<-which(sapply(r,function(z) is(z, EASTERDAY)))
+    p$easter_related_days<-lapply(r[sel], function(z) .r2p_easterday(z))
+    # select special days
+    sel<-which(sapply(r,function(z) is(z, SPECIALDAY)))
+    p$prespecified_holidays<-lapply(r[sel], function(z) .r2p_specialday(z))
+    # select single days
+    sel<-which(sapply(r,function(z) is(z, SINGLEDAY)))
+    p$single_dates<-lapply(r[sel], function(z) .r2p_singleday(z))
+  }
   return (p)
 }
 
@@ -632,9 +673,94 @@ weighted_calendar<-function(calendars, weights){
 }
 
 
+#' Title
+#'
+#' @param days
+#'
+#' @return
+#' @export
+#'
+#' @examples
 national_calendar<-function(days){
+  if (! is.list(days)) stop ('Days should be a list of holidays')
+  return (structure(days, class=c('JD3_CALENDAR', 'JD3_CALENDARDEFINITION')))
+}
+
+#' Title
+#'
+#' @param x
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.JD3_FIXEDDAY<-function(x, ...){
+  cat('Fixed day: month=', x$month, ', day=', x$day,  sep='')
+  if (x$weight != 1)cat(' , weight=', x$weight, sep='')
 
 }
 
+DAYS=c('Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday')
 
+#' Title
+#'
+#' @param x
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.JD3_FIXEDWEEKDAY<-function(x, ...){
+  cat('Fixed week day: month=', x$month, ', day of the week=', DAYS[x$dayofweek], ', position=', x$position,  sep='')
+  if (x$weight != 1)cat(' , weight=', x$weight, sep='')
+
+}
+
+#' Title
+#'
+#' @param x
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.JD3_EASTERDAY<-function(x, ...){
+  cat('Easter related day: offset=', xoffset, sep='')
+  if (x$weight != 1)cat(' , weight=', x$weight, sep='')
+
+}
+
+#' Title
+#'
+#' @param x
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.JD3_SPECIALDAY<-function(x, ...){
+  cat('Prespecified holiday: event=', x$event,  sep='')
+  if (x$offset != 0)cat(' , offset=', x$offset, sep='')
+  if (x$weight != 1)cat(' , weight=', x$weight, sep='')
+
+}
+
+#' Title
+#'
+#' @param x
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.JD3_SINGLEDDAY<-function(x, ...){
+  cat('Single date: ', x$date,  sep='')
+  if (x$weight != 1)cat(' , weight=', x$weight, sep='')
+
+}
 

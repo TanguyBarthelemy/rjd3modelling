@@ -125,16 +125,24 @@ modelling_context<-function(calendars=NULL, variables=NULL){
   p<-jd3.ModellingContext$new()
   n<-length(r$calendars)
   if (n > 0){
-    lcal<-lapply(1:n, function(i){return(.r2p_calendardef(r$calendars[[i]]))})
     ns<-names(r$calendars)
-    names(lcal)<-ns
+    lcal<-lapply(1:n, function(i){
+      entry<-jd3.ModellingContext$CalendarsEntry$new()
+      entry$key<-ns[i]
+      entry$value<-.r2p_calendardef(r$calendars[[i]])
+      return(entry)
+      })
     p$calendars<-lcal
   }
   n<-length(r$variables)
   if (n > 0){
-    lvar<-lapply(1:n, function(i){return(.r2p_datasuppliers(r$variables[[i]]))})
     ns<-names(r$variables)
-    names(lvar)<-ns
+    lvar<-lapply(1:n, function(i){
+      entry<-jd3.ModellingContext$VariablesEntry$new()
+      entry$key<-ns[i]
+      entry$value<-.r2p_datasuppliers(r$variables[[i]])
+      return(entry)
+      })
     p$variables=lvar
   }
   return (p)

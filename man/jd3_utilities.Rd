@@ -26,6 +26,7 @@
 \alias{.r2p_singleday}
 \alias{.p2r_specialday}
 \alias{.r2p_specialday}
+\alias{.r2p_holiday}
 \alias{.p2r_calendar}
 \alias{.r2p_calendar}
 \alias{.p2r_chainedcalendar}
@@ -91,6 +92,8 @@ jd2r_ucarima(jucm)
 
 .r2p_specialday(r)
 
+.r2p_holiday(r)
+
 .p2r_calendar(p)
 
 .r2p_calendar(r)
@@ -121,7 +124,7 @@ jd2r_ucarima(jucm)
 
 .p2r_modellingcontext(p)
 
-.r2p_modellingcontext(p)
+.r2p_modellingcontext(r)
 
 p2r_regarima_rslts(p)
 }
