@@ -12,10 +12,12 @@ set_tradingdays(
   test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
   autoadjust = NA,
   coef = NA,
+  coef.type = c(NA, "Undefined", "Fixed", "Initial"),
   automatic = c(NA, "Unused", "FTest", "WaldTest"),
   pftd = NA,
   leapyear = c(NA, "LeapYear", "LengthOfPeriod", "None"),
-  leapyear.coef = NA
+  leapyear.coef = NA,
+  leapyear.coef.type = c(NA, "Undefined", "Fixed", "Initial")
 )
 }
 \arguments{

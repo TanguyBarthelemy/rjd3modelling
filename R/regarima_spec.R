@@ -745,12 +745,14 @@ set_tradingdays<- function(x,
                            test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
                            autoadjust = NA,
                            coef = NA,
+                           coef.type = c(NA, "Undefined", "Fixed", "Initial"),
                            # TRAMO SPECIFIC
                            automatic = c(NA, "Unused", "FTest", "WaldTest"),
                            pftd = NA,
                            # LEAP YEAR
                            leapyear = c(NA, "LeapYear", "LengthOfPeriod", "None"),
-                           leapyear.coef = NA){
+                           leapyear.coef = NA,
+                           leapyear.coef.type = c(NA, "Undefined", "Fixed", "Initial")){
   UseMethod("set_tradingdays", x)
 }
 
@@ -762,12 +764,14 @@ set_tradingdays.default <- function(x,
                                     test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
                                     autoadjust = NA,
                                     coef = NA,
+                                    coef.type = c(NA, "Estimated", "Fixed"),
                                     # TRAMO SPECIFIC
                                     automatic = c(NA, "Unused", "FTest", "WaldTest"),
                                     pftd = NA,
                                     # LEAP YEAR
                                     leapyear = c(NA, "LeapYear", "LengthOfPeriod", "None"),
-                                    leapyear.coef = NA){
+                                    leapyear.coef = NA,
+                                    leapyear.coef.type = c(NA, "Estimated", "Fixed")){
   td <- x$regression$td
 
   is_tramo <- inherits(x, "JD3_TRAMO_SPEC")
@@ -845,14 +849,51 @@ set_tradingdays.default <- function(x,
   if(missing(coef) || is.null(coef)){
     # coef <- 0
   }else{
-    warning("coef parameter not implemented")
+    if(missing(coef.type) || is.null(coef.type)){
+      coef.type <- "ESTIMATED"
+    }else{
+      coef.type <- match.arg(toupper(coef.type),
+                             choices = c(NA, "ESTIMATED", "FIXED"),
+                             several.ok = TRUE)
+      coef.type[is.na(coef.type)] <- "FIXED"
+    }
+    ntd <- switch(td$td,
+                  TD2 = 1,
+                  TD7 = 6,
+                  length(td$users))
+    if (length(coef) == 1){
+      coef <- rep(coef, ntd)
+    }
+    tdcoefficients = data.frame(value = coef,
+                       type = coef.type)
+    tdcoefficients$value <- as.list(tdcoefficients$value)
+    tdcoefficients$type <- as.list(tdcoefficients$type)
+
+    td$tdcoefficients <- t(tdcoefficients)
+    if (td$test != "NO") {
+      warning("You must set the test parameter to NONE to specify coef")
+    }
+
   }
   if(missing(leapyear.coef) || is.null(leapyear.coef)){
     # coef <- 0
   }else{
-    warning("leapyear.coef parameter not implemented")
+    if(missing(leapyear.coef.type) || is.null(leapyear.coef.type)){
+      leapyear.coef.type <- "ESTIMATED"
+    }else{
+      leapyear.coef.type <- match.arg(toupper(leapyear.coef.type),
+                                      choices = c(NA, "ESTIMATED", "FIXED"),
+                                      several.ok = TRUE)
+      leapyear.coef.type[is.na(leapyear.coef.type)] <- "FIXED"
+    }
+    td$lpcoefficient$value <- leapyear.coef
+    td$lpcoefficient$type <- leapyear.coef.type
+    if (td$test != "NO") {
+      warning("You must set the test parameter to NONE to specify leapyear.coef")
+    }
   }
-  td$tdcoefficients
+
+
 
   x$regression$td <- td
   x
