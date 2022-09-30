@@ -10,6 +10,8 @@ set_easter(
   julian = NA,
   duration = NA,
   test = c(NA, "Add", "Remove", "None"),
+  coef = NA,
+  coef.type = c(NA, "Estimated", "Fixed"),
   type = c(NA, "Unused", "Standard", "IncludeEaster", "IncludeEasterMonday")
 )
 }
@@ -29,6 +31,12 @@ to the RegARIMA model after the test;
 \code{"Remove"} = the Easter effect variable belongs to the initial regression model but can be removed
 from the RegARIMA model after the test;
 \code{"None"} = the Easter effect variable is not pre-tested and is included in the model.}
+
+\item{coef}{to set the coefficient of the easter regressor.}
+
+\item{coef.type}{a character defining the easter regressor coefficient estimation procedure.
+Possible procedures are: \code{"Estimated"} = coefficient is estimated,
+\code{"Fixed"} = the coefficients is fixed.}
 
 \item{type}{(TRAMO specific) a \code{character} that specifies the presence and the length of the Easter effect:
 \code{"Unused"} = the Easter effect is not considered; \code{"Standard"} = influences the period of \code{n} days strictly before Easter Sunday;

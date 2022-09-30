@@ -701,8 +701,10 @@ set_arima.default <- function(x,
 #' @param option to specify the set of trading days regression variables:
 #' \code{"TradingDays"} = six day-of-the-week regression variables;
 #' \code{"WorkingDays"} = one working/non-working day contrast variable;
-#' \code{"None"} = no correction for trading days and working days effects.
+#' \code{"None"} = no correction for trading days and working days effects;
+#' \code{"UserDefined"} = userdefined trading days regressors.
 #' @param uservariable a vector of characters to specify the name of user-defined calendar regressors.
+#' When specified, automatically set \code{option = "UserDefined"}.
 #' @param stocktd  a numeric indicating the day of the month when inventories and other stock are reported
 #' (to denote the last day of the month, set the variable to 31).
 #' When specified, automatically set \code{option = "None"}.
@@ -737,28 +739,29 @@ set_arima.default <- function(x,
 #' \code{"LeapYear"} = leap year effect; \code{"LengthOfPeriod"} = length of period (REGARIMA/X-13 specific), \code{"None"} = no effect included.
 #'
 #' @param leapyear.coef coefficient of the leapyear regressor.
+#' @param coef.type,leapyear.coef.type vector defining if the coefficients are fixed or estimated.
 #' @export
 set_tradingdays<- function(x,
-                           option = c(NA, "TradingDays", "WorkingDays", "None"),
+                           option = c(NA, "TradingDays", "WorkingDays", "None", "UserDefined"),
                            uservariable = NA,
                            stocktd = NA,
                            test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
                            autoadjust = NA,
                            coef = NA,
-                           coef.type = c(NA, "Undefined", "Fixed", "Initial"),
+                           coef.type = c(NA, "Fixed", "Estimated"),
                            # TRAMO SPECIFIC
                            automatic = c(NA, "Unused", "FTest", "WaldTest"),
                            pftd = NA,
                            # LEAP YEAR
                            leapyear = c(NA, "LeapYear", "LengthOfPeriod", "None"),
                            leapyear.coef = NA,
-                           leapyear.coef.type = c(NA, "Undefined", "Fixed", "Initial")){
+                           leapyear.coef.type = c(NA, "Fixed", "Estimated")){
   UseMethod("set_tradingdays", x)
 }
 
 #' @export
 set_tradingdays.default <- function(x,
-                                    option = c(NA, "TradingDays", "WorkingDays", "None"),
+                                    option = c(NA, "TradingDays", "WorkingDays", "None", "UserDefined"),
                                     uservariable = NA,
                                     stocktd = NA,
                                     test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
@@ -778,7 +781,7 @@ set_tradingdays.default <- function(x,
 
   if(!missing(option) & !any(is.na(option))){
     option <- match.arg(toupper(option)[1],
-                        choices = c("TRADINGDAYS", "WORKINGDAYS", "NONE"))
+                        choices = c("TRADINGDAYS", "WORKINGDAYS", "NONE","USERDEFINED"))
     td$td <- switch(option,
                     WORKINGDAYS = "TD2",
                     TRADINGDAYS = "TD7",
@@ -795,6 +798,11 @@ set_tradingdays.default <- function(x,
     uservariable <- gsub("^r\\.", "", uservariable)
     uservariable <- sprintf("r.%s", uservariable)
     td$users <- uservariable
+
+    if (missing(coef) || is.null(coef)){
+      coef <- 0
+      coef.type <- "ESTIMATED"
+    }
   }
   if(!missing(stocktd) && !is.na(stocktd)){
     td$users <- character()
@@ -850,7 +858,7 @@ set_tradingdays.default <- function(x,
     # coef <- 0
   }else{
     if(missing(coef.type) || is.null(coef.type)){
-      coef.type <- "ESTIMATED"
+      coef.type <- "FIXED"
     }else{
       coef.type <- match.arg(toupper(coef.type),
                              choices = c(NA, "ESTIMATED", "FIXED"),
@@ -870,7 +878,7 @@ set_tradingdays.default <- function(x,
     tdcoefficients$type <- as.list(tdcoefficients$type)
 
     td$tdcoefficients <- t(tdcoefficients)
-    if (td$test != "NO") {
+    if (td$test != "NO" & any(coef.type == "FIXED")) {
       warning("You must set the test parameter to NONE to specify coef")
     }
 
@@ -879,21 +887,18 @@ set_tradingdays.default <- function(x,
     # coef <- 0
   }else{
     if(missing(leapyear.coef.type) || is.null(leapyear.coef.type)){
-      leapyear.coef.type <- "ESTIMATED"
+      leapyear.coef.type <- "FIXED"
     }else{
       leapyear.coef.type <- match.arg(toupper(leapyear.coef.type),
-                                      choices = c(NA, "ESTIMATED", "FIXED"),
-                                      several.ok = TRUE)
+                                      choices = c(NA, "ESTIMATED", "FIXED"))
       leapyear.coef.type[is.na(leapyear.coef.type)] <- "FIXED"
     }
     td$lpcoefficient$value <- leapyear.coef
     td$lpcoefficient$type <- leapyear.coef.type
-    if (td$test != "NO") {
+    if (td$test != "NO"& any(coef.type == "FIXED")) {
       warning("You must set the test parameter to NONE to specify leapyear.coef")
     }
   }
-
-
 
   x$regression$td <- td
   x
@@ -916,7 +921,10 @@ set_tradingdays.default <- function(x,
 #' \code{"Remove"} = the Easter effect variable belongs to the initial regression model but can be removed
 #' from the RegARIMA model after the test;
 #' \code{"None"} = the Easter effect variable is not pre-tested and is included in the model.
-#'
+#' @param coef to set the coefficient of the easter regressor.
+#' @param coef.type a character defining the easter regressor coefficient estimation procedure.
+#' Possible procedures are: \code{"Estimated"} = coefficient is estimated,
+#' \code{"Fixed"} = the coefficients is fixed.
 #' @param type (TRAMO specific) a \code{character} that specifies the presence and the length of the Easter effect:
 #' \code{"Unused"} = the Easter effect is not considered; \code{"Standard"} = influences the period of \code{n} days strictly before Easter Sunday;
 #' \code{"IncludeEaster"} = influences the entire period (\code{n}) up to and including Easter Sunday;
@@ -926,6 +934,8 @@ set_easter<- function(x, enabled = NA,
                       julian = NA,
                       duration = NA,
                       test = c(NA, "Add", "Remove", "None"),
+                      coef = NA,
+                      coef.type = c(NA, "Estimated", "Fixed"),
                       # TRAMO SPECIFIC
                       type = c(NA, "Unused", "Standard", "IncludeEaster", "IncludeEasterMonday")){
   UseMethod("set_easter", x)
@@ -935,6 +945,8 @@ set_easter.default <- function(x, enabled = NA,
                                julian = NA,
                                duration = NA,
                                test = c(NA, "Add", "Remove", "None"),
+                               coef = NA,
+                               coef.type = c(NA, "Estimated", "Fixed"),
                                # TRAMO SPECIFIC
                                type = c(NA, "Unused", "Standard", "IncludeEaster", "IncludeEasterMonday")){
   easter <- x$regression$easter
@@ -982,6 +994,24 @@ set_easter.default <- function(x, enabled = NA,
   }
   if(!missing(duration) && !is.na(duration)){
     easter$duration <- duration
+  }
+  if (missing(coef) ||is.null(coef) || is.na(coef)) {
+
+  } else {
+    if (missing(coef.type) || any(is.na(coef.type))) {
+      coef.type <- "FIXED"
+    } else {
+      coef.type <- match.arg(toupper(coef.type)[1],
+                             choices = c("ESTIMATED", "FIXED"))
+    }
+
+    if (coef.type == "ESTIMATED") {
+      easter["coefficient"] <- list(NULL)
+    } else {
+      easter$coefficient$value <- coef
+      easter$coefficient$type <- coef.type
+    }
+
   }
   x$regression$easter <- easter
   x
