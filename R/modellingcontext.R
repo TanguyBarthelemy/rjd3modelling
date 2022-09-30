@@ -105,6 +105,7 @@ modelling_context<-function(calendars=NULL, variables=NULL){
 #' @rdname jd3_utilities
 .p2r_modellingcontext<-function(p){
   n<-length(p$calendars)
+  lcal <- lvar <- NULL
   if (n > 0){
     lcal<-lapply(1:n, function(i){return(.p2r_calendardef(p$calendars[[i]]$value))})
     ns<-sapply(1:n, function(i){return(p$calendars[[i]]$key)})
