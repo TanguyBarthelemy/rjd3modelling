@@ -728,7 +728,7 @@ print.JD3_FIXEDWEEKDAY<-function(x, ...){
 #'
 #' @examples
 print.JD3_EASTERDAY<-function(x, ...){
-  cat('Easter related day: offset=', xoffset, sep='')
+  cat('Easter related day: offset=', x$offset, sep='')
   if (x$weight != 1)cat(' , weight=', x$weight, sep='')
 
 }
