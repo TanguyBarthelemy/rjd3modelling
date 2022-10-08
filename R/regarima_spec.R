@@ -701,6 +701,9 @@ set_arima.default <- function(x,
 #' @param option to specify the set of trading days regression variables:
 #' \code{"TradingDays"} = six day-of-the-week regression variables;
 #' \code{"WorkingDays"} = one working/non-working day contrast variable;
+#' \code{"TD3"} = weeks, Saturdays, Sundays;
+#' \code{"TD3c"} = weeks, Fridays+Saturdays, Sundays;
+#' \code{"TD4"} = weeks, Fridays, Saturdays, Sundays;
 #' \code{"None"} = no correction for trading days and working days effects;
 #' \code{"UserDefined"} = userdefined trading days regressors.
 #' @param uservariable a vector of characters to specify the name of user-defined calendar regressors.
@@ -742,7 +745,7 @@ set_arima.default <- function(x,
 #' @param coef.type,leapyear.coef.type vector defining if the coefficients are fixed or estimated.
 #' @export
 set_tradingdays<- function(x,
-                           option = c(NA, "TradingDays", "WorkingDays", "None", "UserDefined"),
+                           option = c(NA, "TradingDays", "WorkingDays", "TD3", "TD3c", "TD4",, "None", "UserDefined"),
                            uservariable = NA,
                            stocktd = NA,
                            test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
@@ -761,7 +764,7 @@ set_tradingdays<- function(x,
 
 #' @export
 set_tradingdays.default <- function(x,
-                                    option = c(NA, "TradingDays", "WorkingDays", "None", "UserDefined"),
+                                    option = c(NA, "TradingDays", "WorkingDays", "TD3", "TD3c", "TD4", "None", "UserDefined"),
                                     uservariable = NA,
                                     stocktd = NA,
                                     test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
@@ -781,12 +784,14 @@ set_tradingdays.default <- function(x,
 
   if(!missing(option) & !any(is.na(option))){
     option <- match.arg(toupper(option)[1],
-                        choices = c("TRADINGDAYS", "WORKINGDAYS", "NONE","USERDEFINED"))
+                        choices = c("TRADINGDAYS", "WORKINGDAYS", "NONE","USERDEFINED",
+                                    "TD3", "TD3C", "TD4"))
     td$td <- switch(option,
                     WORKINGDAYS = "TD2",
                     TRADINGDAYS = "TD7",
                     USERDEFINED = "TD_NONE",
-                    NONE = "TD_NONE")
+                    NONE = "TD_NONE",
+                    option)
     td$users <- character()
   }
   if(!is.null(uservariable) &&
@@ -867,6 +872,9 @@ set_tradingdays.default <- function(x,
     }
     ntd <- switch(td$td,
                   TD2 = 1,
+                  TD3 = 2,
+                  TD3C = 3,
+                  TD4 = 3,
                   TD7 = 6,
                   length(td$users))
     if (length(coef) == 1){
