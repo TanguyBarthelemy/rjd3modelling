@@ -21,11 +21,30 @@ sarima.model<-function(name="sarima", period, phi=NULL, d=0, theta=NULL, bphi=NU
                          bphi = bphi, bd = bd, btheta = btheta), class="JD3_SARIMA"))
 }
 
+#' SARIMA Properties
+#'
+#' @param model a `"JD3_SARIMA"` model (created with [sarima.model()]).
+#' @param nspectrum number of points in \[0, pi\] to calculate the spectrum.
+#' @param nacf maximum lag at which to calculate the acf.
+#'
+#' @examples
+#' mod1 <- sarima.model(period = 12, d =1, bd = 1, theta = 0.2, btheta = 0.2)
+#' sarima.properties(mod1)
+#' @export
+sarima.properties<-function(model, nspectrum=601, nacf=36){
+  jmodel<-r2jd_sarima(model)
+  spectrum<-.jcall("demetra/arima/r/SarimaModels", "[D", "spectrum", jmodel, as.integer(nspectrum))
+  acf<-.jcall("demetra/arima/r/SarimaModels", "[D", "acf", jmodel, as.integer(nacf))
+  return (list(acf=acf, spectrum=spectrum))
+}
+
+
 #' Simulate Seasonal ARIMA
 #'
 #' @param model a `"JD3_SARIMA"` model (see [sarima.model()] function).
 #' @param length length of the output series.
-#' @param stde the standard deviation of the simulated series.
+#' @param stde the standard deviation of the normal distribution of the innovations of the simulated series. Unused if tdegree is larger than 0.
+#' @param tdegree Degrees of freedom of the T distribution of the innovations. O if normal distribution is used.
 #'
 #' @examples
 #' # Airline model
@@ -33,7 +52,7 @@ sarima.model<-function(name="sarima", period, phi=NULL, d=0, theta=NULL, bphi=NU
 #' x <- sarima.random(s_model, length = 64)
 #' plot(x, type = "line")
 #' @export
-sarima.random<-function(model, length, stde=5){
+sarima.random<-function(model, length, stde=1, tdegree=0){
   if (!inherits(model, "JD3_SARIMA"))
     stop("Invalid model")
   return (.jcall("demetra/arima/r/SarimaModels", "[D", "random",
@@ -45,7 +64,32 @@ sarima.random<-function(model, length, stde=5){
          .jarray(as.numeric(model$bphi)),
          as.integer(model$bd),
          .jarray(as.numeric(model$btheta)),
-         stde))
+         stde,
+         as.integer(tdegree)))
+}
+
+#' Title
+#'
+#' @param model Sarima model to decompose
+#' @param rmod Trend threshold
+#' @param epsphi Seasonal tolerance (in degrees)
+#'
+#' @return
+#' @export
+#'
+#' @examples
+#' model <- sarima.model(period = 12, d =1, bd = 1, theta = -0.6, btheta = -0.5)
+#' ucm <- sarima.decompose(model)
+#'
+sarima.decompose<-function(model, rmod=0, epsphi=0){
+  if (!inherits(model, "JD3_SARIMA"))
+    stop("Invalid model")
+  jmodel<-r2jd_sarima(model)
+  jucm<-.jcall("demetra/arima/r/UcarimaModels", "Ljdplus/ucarima/UcarimaModel;", "decompose",
+         jmodel, as.numeric(rmod), as.numeric(epsphi))
+  if (is.jnull(jucm)) return (NULL)
+  return (jd2r_ucarima(jucm))
+
 }
 
 #' ARIMA Model
@@ -249,4 +293,24 @@ ucarima.estimate<-function(ucm, data, stdev=T){
   return (rjd3toolkit::matrix_jd2r(jcmps))
 }
 
-
+#' Title
+#'
+#' @param data
+#' @param order
+#' @param seasonal
+#' @param mean
+#' @param xreg
+#' @param eps
+#'
+#' @return
+#' @export
+#'
+#' @examples
+sarima.estimate<-function(data, order=c(0,0,0), seasonal = list(order=c(0,0,0), period=1), mean=FALSE, xreg=NULL, eps = 1e-9){
+  jxreg<-rjd3toolkit::matrix_r2jd(xreg)
+  jestim<-.jcall("demetra/arima/r/SarimaModels", "Ljdplus/regarima/RegArimaEstimation;", "estimate",
+                 as.numeric(data), as.integer(order), as.integer(seasonal$period), as.integer(seasonal$order), as.logical(mean), jxreg, .jnull("[D"), as.numeric(eps))
+  bytes<-.jcall("demetra/arima/r/SarimaModels", "[B", "toBuffer", jestim)
+  p<-RProtoBuf::read(regarima.RegArimaModel$Estimation, bytes)
+  return (p2r_regarima_estimation(p))
+}
