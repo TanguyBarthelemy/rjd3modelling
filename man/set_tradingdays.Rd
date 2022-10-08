@@ -6,16 +6,19 @@
 \usage{
 set_tradingdays(
   x,
-  option = c(NA, "TradingDays", "WorkingDays", "None"),
+  option = c(NA, "TradingDays", "WorkingDays", "TD3", "TD3c", "TD4", , "None",
+    "UserDefined"),
   uservariable = NA,
   stocktd = NA,
   test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
   autoadjust = NA,
   coef = NA,
+  coef.type = c(NA, "Fixed", "Estimated"),
   automatic = c(NA, "Unused", "FTest", "WaldTest"),
   pftd = NA,
   leapyear = c(NA, "LeapYear", "LengthOfPeriod", "None"),
-  leapyear.coef = NA
+  leapyear.coef = NA,
+  leapyear.coef.type = c(NA, "Fixed", "Estimated")
 )
 }
 \arguments{
@@ -24,9 +27,14 @@ set_tradingdays(
 \item{option}{to specify the set of trading days regression variables:
 \code{"TradingDays"} = six day-of-the-week regression variables;
 \code{"WorkingDays"} = one working/non-working day contrast variable;
-\code{"None"} = no correction for trading days and working days effects.}
+\code{"TD3"} = weeks, Saturdays, Sundays;
+\code{"TD3c"} = weeks, Fridays+Saturdays, Sundays;
+\code{"TD4"} = weeks, Fridays, Saturdays, Sundays;
+\code{"None"} = no correction for trading days and working days effects;
+\code{"UserDefined"} = userdefined trading days regressors.}
 
-\item{uservariable}{a vector of characters to specify the name of user-defined calendar regressors.}
+\item{uservariable}{a vector of characters to specify the name of user-defined calendar regressors.
+When specified, automatically set \code{option = "UserDefined"}.}
 
 \item{stocktd}{a numeric indicating the day of the month when inventories and other stock are reported
 (to denote the last day of the month, set the variable to 31).
@@ -52,6 +60,8 @@ if at least one t-statistic is greater than 2.6 or if two t-statistics are great
 It is available when the transformation function is set to Auto.}
 
 \item{coef}{vector of coefficients for the tranding-days regressors.}
+
+\item{coef.type, leapyear.coef.type}{vector defining if the coefficients are fixed or estimated.}
 
 \item{automatic}{(TRAMO SPECIFIC) defines whether the calendar effects should be added to the model manually (\code{"Unused"}) or automatically.
 During the automatic selection, the choice of the number of calendar variables can be based on the F-Test (\code{"FTest"}) or the Wald Test (\code{"WaldTest"});
