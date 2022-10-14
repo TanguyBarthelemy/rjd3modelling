@@ -159,7 +159,7 @@ p2r_uservar<-function(p){
     id=p$id,
     name=p$name,
     lags=rlags(l0, l1),
-    coef=rjd3toolkit::p2r_parameters(p$coefficient),
+    coef=rjd3toolkit::p2r_parameter(p$coefficient[[1]]),
     regeffect=regeffect(p$metadata)
   ))
 }
