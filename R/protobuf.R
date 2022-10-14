@@ -147,13 +147,12 @@ rlags<-function(l0, l1){
 regeffect<-function(map){
   r<-which(sapply(map, function(z){z$key == "regeffect"}))
   if (length(r) == 0) return ("Undefined")
-  return (map[min(r)]$value)
+  return (map[[min(r)]]$value)
 }
 
 p2r_uservar<-function(p){
   l0<-p$first_lag
   l1<-p$last_lag
-  lapply
   return (list(
     id=p$id,
     name=p$name,
@@ -178,7 +177,7 @@ r2p_uservar<-function(r){
       stop("Invalid lags")
   }
   p$coefficient<-rjd3toolkit::r2p_parameters(r$coef)
-  p$metadata<-list(list(key="regeffect", value=r$regeffect))
+  p$metadata<-modelling.TsVariable.MetadataEntry$new(key = "regeffect", value=r$regeffect)
   return (p)
 }
 
