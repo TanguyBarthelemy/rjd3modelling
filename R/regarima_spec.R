@@ -745,7 +745,7 @@ set_arima.default <- function(x,
 #' @param coef.type,leapyear.coef.type vector defining if the coefficients are fixed or estimated.
 #' @export
 set_tradingdays<- function(x,
-                           option = c(NA, "TradingDays", "WorkingDays", "TD3", "TD3c", "TD4",, "None", "UserDefined"),
+                           option = c(NA, "TradingDays", "WorkingDays", "TD3", "TD3c", "TD4", "None", "UserDefined"),
                            uservariable = NA,
                            stocktd = NA,
                            test = c(NA, "None", "Remove", "Add", "Separate_T", "Joint_F"),
