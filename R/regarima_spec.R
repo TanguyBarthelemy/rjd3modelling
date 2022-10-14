@@ -1094,14 +1094,26 @@ set_transform.default <- function(x,
 }
 ######### TODO
 
+#' @export
 add_usrdefvar<- function(x,
-                         variable,
-                         variable.type,
-                         variable.coef = 0){
+                         id,
+                         name = NULL,
+                         lag0 = 0,
+                         lag1 = 0,
+                         coef = NULL,
+                         regeffect=c("Undefined", "Trend", "Seasonal", "Irregular", "Series", "SeasonallyAdjusted")) {
   UseMethod("add_usrdefvar", x)
 }
+#' @export
 add_usrdefvar.JD3_REGARIMA_SPEC <- function(x,
-                                            variable,
-                                            variable.type,
-                                            variable.coef = 0){
+                                            id,
+                                            name = NULL,
+                                            lag0 = 0,
+                                            lag1 = 0,
+                                            coef = NULL,
+                                            regeffect=c("Undefined", "Trend", "Seasonal", "Irregular", "Series", "SeasonallyAdjusted")) {
+  x$regression$users[[length(x$regression$users) + 1]] <-
+    createVariable(id = id, name = name, lag0 = lag0, lag1 = lag1, coef = coef, regeffect = regeffect)
+  x
 }
+
