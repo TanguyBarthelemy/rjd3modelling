@@ -182,12 +182,14 @@ r2p_uservar<-function(r){
   p$metadata<-modelling.TsVariable.MetadataEntry$new(key = "regeffect", value=r$regeffect)
   return (p)
 }
-
+#' @export
+#' @rdname jd3_utilities
 p2r_uservars<-function(p){
   if (length(p) == 0){return (NULL)}
   return (lapply(p, function(z){p2r_uservar(z)}))
 }
-
+#' @export
+#' @rdname jd3_utilities
 r2p_uservars<-function(r){
   if (length(r) == 0){return (list())}
   l<-list()

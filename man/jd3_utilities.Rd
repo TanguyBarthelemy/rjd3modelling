@@ -11,6 +11,8 @@
 \alias{r2p_outliers}
 \alias{p2r_ramps}
 \alias{r2p_ramps}
+\alias{p2r_uservars}
+\alias{r2p_uservars}
 \alias{p2r_variables}
 \alias{r2jd_sarima}
 \alias{jd2r_ucarima}
@@ -61,6 +63,10 @@ r2p_outliers(r)
 p2r_ramps(p)
 
 r2p_ramps(r)
+
+p2r_uservars(p)
+
+r2p_uservars(r)
 
 p2r_variables(p)
 
