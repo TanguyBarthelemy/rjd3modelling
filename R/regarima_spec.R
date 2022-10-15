@@ -57,9 +57,9 @@ remove_outlier <- function(x,
 }
 #' @export
 remove_outlier.default <- function(x,
-                                type = NULL,
-                                date = NULL,
-                                name = NULL){
+                                   type = NULL,
+                                   date = NULL,
+                                   name = NULL){
   if (is.null(x$regression$outliers))
     return (x)
   out_mat = simplify2array(x$regression$outliers)[c("code", "pos", "name"),, drop = FALSE]
@@ -128,9 +128,9 @@ add_ramp.default <- function(x,
 #' @rdname add_outlier
 #' @export
 remove_ramp <- function(x,
-                     start = NULL,
-                     end = NULL,
-                     name = NULL){
+                        start = NULL,
+                        end = NULL,
+                        name = NULL){
   UseMethod("remove_ramp", x)
 }
 #' @export
@@ -881,7 +881,7 @@ set_tradingdays.default <- function(x,
       coef <- rep(coef, ntd)
     }
     tdcoefficients = data.frame(value = coef,
-                       type = coef.type)
+                                type = coef.type)
     tdcoefficients$value <- as.list(tdcoefficients$value)
     tdcoefficients$type <- as.list(tdcoefficients$type)
 
@@ -1105,13 +1105,13 @@ add_usrdefvar<- function(x,
   UseMethod("add_usrdefvar", x)
 }
 #' @export
-add_usrdefvar.JD3_REGARIMA_SPEC <- function(x,
-                                            id,
-                                            name = NULL,
-                                            lag0 = 0,
-                                            lag1 = 0,
-                                            coef = NULL,
-                                            regeffect=c("Undefined", "Trend", "Seasonal", "Irregular", "Series", "SeasonallyAdjusted")) {
+add_usrdefvar.default <- function(x,
+                                  id,
+                                  name = NULL,
+                                  lag0 = 0,
+                                  lag1 = 0,
+                                  coef = NULL,
+                                  regeffect=c("Undefined", "Trend", "Seasonal", "Irregular", "Series", "SeasonallyAdjusted")) {
   x$regression$users[[length(x$regression$users) + 1]] <-
     createVariable(id = id, name = name, lag0 = lag0, lag1 = lag1, coef = coef, regeffect = regeffect)
   x
