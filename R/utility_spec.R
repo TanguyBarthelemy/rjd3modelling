@@ -13,7 +13,13 @@ createVariable<-function(id, name = NULL, lag0 = 0, lag1 = 0, coef = NULL, regef
     name<-id
   }
   res = list(id=id, name=name, lags=rlags(lag0, lag1), coef = NULL, regeffect=regeffect)
-  res["coef"] = fixedParameters(coef)
+  coef = fixedParameters(coef)
+  if (is.null(coef)) {
+    coef = fixedParameters(1)
+    coef[[1]]$value = 0
+    coef[[1]]$type = "ESTIMATED"
+  }
+  res["coef"] = coef
   return (res)
 }
 
