@@ -84,7 +84,7 @@ tsmoniker<-function(source, id){
 #' @return list of calendars and variables
 #'
 #' @examples
-#' ts <- ABS$X0.2.09.10.M
+#' ts <- rjd3toolkit::ABS$X0.2.09.10.M
 #' xvar <- td(12, start=start(ts),length = length(ts),groups = c(1,1,1,1,1,0,0))
 #' context <- modelling_context(calendars = NULL, variables = list(xvar = xvar))
 #'
@@ -133,24 +133,32 @@ modelling_context<-function(calendars=NULL, variables=NULL){
   n<-length(r$calendars)
   if (n > 0){
     ns<-names(r$calendars)
-    lcal<-lapply(1:n, function(i){
+    # To take into account empty calendars
+    length_cal <- sapply(r$calendars, length)
+
+    lcal<-lapply((1:n)[length_cal!=0], function(i){
       entry<-jd3.ModellingContext$CalendarsEntry$new()
       entry$key<-ns[i]
       entry$value<-.r2p_calendardef(r$calendars[[i]])
       return(entry)
       })
-    p$calendars<-lcal
+    if (length(lcal) > 0) {
+      p$calendars<-lcal
+    }
   }
   n<-length(r$variables)
   if (n > 0){
     ns<-names(r$variables)
-    lvar<-lapply(1:n, function(i){
+    length_var <- sapply(r$variables, length)
+    lvar<-lapply((1:n)[length_var!=0], function(i){
       entry<-jd3.ModellingContext$VariablesEntry$new()
       entry$key<-ns[i]
       entry$value<-.r2p_datasuppliers(r$variables[[i]])
       return(entry)
       })
-    p$variables=lvar
+    if (length(lvar) > 0) {
+      p$variables=lvar
+    }
   }
   return (p)
 

@@ -18,7 +18,7 @@ list of calendars and variables
 Create context
 }
 \examples{
-ts <- ABS$X0.2.09.10.M
+ts <- rjd3toolkit::ABS$X0.2.09.10.M
 xvar <- td(12, start=start(ts),length = length(ts),groups = c(1,1,1,1,1,0,0))
 context <- modelling_context(calendars = NULL, variables = list(xvar = xvar))
 
