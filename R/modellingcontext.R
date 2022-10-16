@@ -56,6 +56,8 @@ tsmoniker<-function(source, id){
 .r2p_datasuppliers<-function(r){
   if (! is.list(r)) stop("Suppliers should be a list")
   ns<-names(r)
+  if (is.null(ns))
+    stop("All the variables of the list should be named")
   n<-length(ns)
   all<-lapply(1:n, function(z){.r2p_datasupplier(ns[z], r[[z]])})
   p<-jd3.TsDataSuppliers$new()
@@ -74,15 +76,19 @@ tsmoniker<-function(source, id){
   return (l)
 }
 
-#' Title
+#' Create context
 #'
-#' @param calendars
-#' @param variables
+#' @param calendars list of calendars.
+#' @param variables list of variables.
 #'
-#' @return
-#' @export
+#' @return list of calendars and variables
 #'
 #' @examples
+#' ts <- ABS$X0.2.09.10.M
+#' xvar <- td(12, start=start(ts),length = length(ts),groups = c(1,1,1,1,1,0,0))
+#' context <- modelling_context(calendars = NULL, variables = list(xvar = xvar))
+#'
+#' @export
 modelling_context<-function(calendars=NULL, variables=NULL){
   if (is.null(calendars))calendars<-list()
   if (is.null(variables))variables<-list()
@@ -148,5 +154,23 @@ modelling_context<-function(calendars=NULL, variables=NULL){
   }
   return (p)
 
+}
+
+#' @export
+#' @rdname jd3_utilities
+p2jd_context<-function(p){
+  bytes<-p$serialize(NULL)
+  jcal <- .jcall("demetra/util/r/Modelling", "Ldemetra/timeseries/regression/ModellingContext;",
+                "of",
+                bytes)
+  return (jcal)
+}
+#' @export
+#' @rdname jd3_utilities
+context2dict <- function(x) {
+  .jcall("demetra/util/r/Dictionary",
+        "Ldemetra/util/r/Dictionary;",
+        "fromContext",
+        x)
 }
 

@@ -45,6 +45,8 @@
 \alias{.p2r_datasuppliers}
 \alias{.p2r_modellingcontext}
 \alias{.r2p_modellingcontext}
+\alias{p2jd_context}
+\alias{context2dict}
 \alias{p2r_regarima_rslts}
 \title{Java Utility Functions}
 \usage{
@@ -132,10 +134,14 @@ jd2r_ucarima(jucm)
 
 .r2p_modellingcontext(r)
 
+p2jd_context(p)
+
+context2dict(x)
+
 p2r_regarima_rslts(p)
 }
 \arguments{
-\item{p, r, spec, model, jucm, vp, start, end, jrslts}{parameters.}
+\item{p, r, spec, model, jucm, vp, start, end, name, x}{parameters.}
 }
 \description{
 These functions are used in all JDemetra+ 3.0 packages to easily interact between R and Java objects.
