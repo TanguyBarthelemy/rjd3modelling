@@ -191,6 +191,7 @@ set_basic <- function(x,
                       preprocessing = NA){
   UseMethod("set_basic", x)
 }
+#' @export
 set_basic.default <- function(x,
                               type = c(NA, "All", "From", "To", "Between", "Last", "First", "Excluding"),
                               d0 = NULL,
