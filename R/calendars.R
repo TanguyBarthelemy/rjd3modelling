@@ -681,10 +681,65 @@ weighted_calendar<-function(calendars, weights){
 #' @export
 #'
 #' @examples
+#' BE<-national_calendar(list(
+#'     fixed_day(7,21),
+#'     special_day('NEWYEAR'),
+#'     special_day('CHRISTMAS'),
+#'     special_day('MAYDAY'),
+#'     special_day('EASTERMONDAY'),
+#'     special_day('ASCENSION'),
+#'     special_day('WHITMONDAY'),
+#'     special_day('ASSUMPTION'),
+#'     special_day('ALLSAINTSDAY'),
+#'     special_day('ARMISTICE')))
 national_calendar<-function(days){
   if (! is.list(days)) stop ('Days should be a list of holidays')
   return (structure(days, class=c('JD3_CALENDAR', 'JD3_CALENDARDEFINITION')))
 }
+
+#' Calendar specific trading days variables
+#'
+#' @inheritParams td
+#' @param calendar The calendar.
+#' @param holiday Day for holidays (holidays are considered as that day). 1 for Monday... 7 for Sunday. Doesn't necessary belong to the 0-group.
+#' @param meanCorrection boolean indicating if the regressors are corrected for long-term term.
+#' By default the correction is done if \code{contrasts = TRUE}.
+#'
+#' @return The variables corresponding to each group, starting with the 0-group (\code{contrasts = FALSE})
+#' or the 1-group (\code{contrasts = TRUE}).
+#' @export
+#'
+#' @examples
+#' BE<-national_calendar(list(
+#'     fixed_day(7,21),
+#'     special_day('NEWYEAR'),
+#'     special_day('CHRISTMAS'),
+#'     special_day('MAYDAY'),
+#'     special_day('EASTERMONDAY'),
+#'     special_day('ASCENSION'),
+#'     special_day('WHITMONDAY'),
+#'     special_day('ASSUMPTION'),
+#'     special_day('ALLSAINTSDAY'),
+#'     special_day('ARMISTICE')))
+#' calendar_td(BE, 12, c(1980,1), 240)
+calendar_td<-function(calendar,frequency, start, length, s, groups=c(1,2,3,4,5,6,0), holiday=7, contrasts=TRUE,
+              meanCorrection = contrasts){
+  if(! is(calendar, 'JD3_CALENDAR')) stop('Invalid calendar')
+  if (!missing(s) && is.ts(s)) {
+    frequency = stats::frequency(s)
+    start = stats::start(s)
+    length = length_ts(s)
+  }
+  jdom<-rjd3toolkit::tsdomain_r2jd(frequency, start[1], start[2], length)
+  pcal<-.r2p_calendar(calendar)
+  jcal<-p2jd_calendar(pcal)
+  jm<-.jcall("demetra/modelling/r/Variables", "Ldemetra/math/matrices/Matrix;",
+             "htd", jcal, jdom, as.integer(groups), as.integer(holiday), contrasts, meanCorrection)
+  return <- rjd3toolkit::matrix_jd2r(jm)
+  return <- group_names(return, contrasts = contrasts)
+  return (ts(return, start = start, frequency = frequency))
+}
+
 
 #' Title
 #'
@@ -762,5 +817,18 @@ print.JD3_SINGLEDDAY<-function(x, ...){
   cat('Single date: ', x$date,  sep='')
   if (x$weight != 1)cat(' , weight=', x$weight, sep='')
 
+}
+
+#' Title
+#'
+#' @param x
+#' @param ...
+#'
+#' @return
+#' @export
+#'
+#' @examples
+print.JD3_CALENDAR<-function(x, ...){
+  for (day in x) {print(day);cat('\n')}
 }
 

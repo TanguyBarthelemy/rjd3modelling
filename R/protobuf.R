@@ -145,6 +145,7 @@ rlags<-function(l0, l1){
 }
 
 regeffect<-function(map){
+  if (is.null(map)) return (NULL)
   r<-which(sapply(map, function(z){z$key == "regeffect"}))
   if (length(r) == 0) return ("Undefined")
   return (map[min(r)]$value)
@@ -202,7 +203,15 @@ p2r_variable<-function(p){
   name<-p$name
   type<-rjd3toolkit::enum_extract(modelling.VariableType, p$var_type)
   coeff<-rjd3toolkit::p2r_parameters_rsltx(p$coefficients)
-  return (list(name=name, type=type, coeff=coeff))
+  # add metadata
+  n<-length(p$metadata)
+  meta<-NULL
+  if (n > 0){
+    meta<-lapply(1:n, function(i){return(p$metadata[[i]]$value)})
+    ns<-sapply(1:n, function(i){return(p$metadata[[i]]$key)})
+    names(meta)<-ns
+  }
+  return (list(name=name, type=type, coeff=coeff, metadata=meta))
 }
 
 
