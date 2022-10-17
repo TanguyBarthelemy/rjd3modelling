@@ -2,13 +2,24 @@
 % Please edit documentation in R/modellingcontext.R
 \name{modelling_context}
 \alias{modelling_context}
-\title{Title}
+\title{Create context}
 \usage{
 modelling_context(calendars = NULL, variables = NULL)
 }
 \arguments{
-\item{variables}{}
+\item{calendars}{list of calendars.}
+
+\item{variables}{list of variables.}
+}
+\value{
+list of calendars and variables
 }
 \description{
-Title
+Create context
+}
+\examples{
+ts <- rjd3toolkit::ABS$X0.2.09.10.M
+xvar <- td(12, start=start(ts),length = length(ts),groups = c(1,1,1,1,1,0,0))
+context <- modelling_context(calendars = NULL, variables = list(xvar = xvar))
+
 }

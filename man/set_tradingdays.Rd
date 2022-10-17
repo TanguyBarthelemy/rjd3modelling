@@ -6,7 +6,7 @@
 \usage{
 set_tradingdays(
   x,
-  option = c(NA, "TradingDays", "WorkingDays", "TD3", "TD3c", "TD4", , "None",
+  option = c(NA, "TradingDays", "WorkingDays", "TD3", "TD3c", "TD4", "None",
     "UserDefined"),
   uservariable = NA,
   stocktd = NA,

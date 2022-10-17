@@ -11,6 +11,8 @@
 \alias{r2p_outliers}
 \alias{p2r_ramps}
 \alias{r2p_ramps}
+\alias{p2r_uservars}
+\alias{r2p_uservars}
 \alias{p2r_variables}
 \alias{r2jd_sarima}
 \alias{jd2r_ucarima}
@@ -43,6 +45,8 @@
 \alias{.p2r_datasuppliers}
 \alias{.p2r_modellingcontext}
 \alias{.r2p_modellingcontext}
+\alias{p2jd_context}
+\alias{context2dict}
 \alias{p2r_regarima_rslts}
 \title{Java Utility Functions}
 \usage{
@@ -61,6 +65,10 @@ r2p_outliers(r)
 p2r_ramps(p)
 
 r2p_ramps(r)
+
+p2r_uservars(p)
+
+r2p_uservars(r)
 
 p2r_variables(p)
 
@@ -126,10 +134,14 @@ jd2r_ucarima(jucm)
 
 .r2p_modellingcontext(r)
 
+p2jd_context(p)
+
+context2dict(x)
+
 p2r_regarima_rslts(p)
 }
 \arguments{
-\item{p, r, spec, model, jucm, vp, start, end, jrslts}{parameters.}
+\item{p, r, spec, model, jucm, vp, start, end, name, x}{parameters.}
 }
 \description{
 These functions are used in all JDemetra+ 3.0 packages to easily interact between R and Java objects.

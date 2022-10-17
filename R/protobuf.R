@@ -6,7 +6,7 @@ NULL
 #'
 #' These functions are used in all JDemetra+ 3.0 packages to easily interact between R and Java objects.
 #'
-#' @param p,r,spec,model,jucm,vp,start,end,jrslts parameters.
+#' @param p,r,spec,model,jucm,vp,start,end,name,x parameters.
 #'
 #' @name jd3_utilities
 NULL
@@ -145,20 +145,21 @@ rlags<-function(l0, l1){
 }
 
 regeffect<-function(map){
+  if(length(map) == 0)
+    return("Undefined")
   r<-which(sapply(map, function(z){z$key == "regeffect"}))
   if (length(r) == 0) return ("Undefined")
-  return (map[min(r)]$value)
+  return (map[[min(r)]]$value)
 }
 
 p2r_uservar<-function(p){
   l0<-p$first_lag
   l1<-p$last_lag
-  lapply
   return (list(
     id=p$id,
     name=p$name,
     lags=rlags(l0, l1),
-    coef=rjd3toolkit::p2r_parameter(p$coefficient),
+    coef=rjd3toolkit::p2r_parameter(p$coefficient[[1]]),
     regeffect=regeffect(p$metadata)
   ))
 }
@@ -177,16 +178,18 @@ r2p_uservar<-function(r){
     }else
       stop("Invalid lags")
   }
-  p$coefficient<-rjd3toolkit::r2p_parameters(r$coef)
-  p$metadata<-list(list(key="regeffect", value=r$regeffect))
+  p$coefficient<-rjd3toolkit::r2p_parameter(r$coef)
+  p$metadata<-modelling.TsVariable.MetadataEntry$new(key = "regeffect", value=r$regeffect)
   return (p)
 }
-
+#' @export
+#' @rdname jd3_utilities
 p2r_uservars<-function(p){
   if (length(p) == 0){return (NULL)}
   return (lapply(p, function(z){p2r_uservar(z)}))
 }
-
+#' @export
+#' @rdname jd3_utilities
 r2p_uservars<-function(r){
   if (length(r) == 0){return (list())}
   l<-list()

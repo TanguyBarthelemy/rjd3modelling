@@ -53,6 +53,7 @@ sarima_coef_table <- function(x, cov = NULL, ndf = NULL,...){
   list(sarima_orders = sarima_orders,
        coef_table = fr)
 }
+#' @importFrom stats pt
 regarima_coef_table <- function(x,...){
   q <- x
   if (length(q$description$variables)>0){
