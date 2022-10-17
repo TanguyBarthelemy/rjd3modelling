@@ -7,13 +7,16 @@ coef.JD3_REGARIMA_RSLTS <- function(object, component = c("regression", "arima",
 
   component <- match.arg(component)
   if (component == "regression") {
-    regarima_coef_table(object)[,1]
+    coefs = regarima_coef_table(object)
   } else if (component == "arima") {
-    sarima_coef_table(object$description$arima)$coef_table[,1]
+    coefs = sarima_coef_table(object$description$arima)$coef_table
   } else{
-    c(sarima_coef_table(object$description$arima)$coef_table[,1],
-      regarima_coef_table(object)[,1])
+    coefs = rbind(sarima_coef_table(object$description$arima)$coef_table[,1:2],
+                  regarima_coef_table(object)[,1:2])
   }
+  res = coefs[,1]
+  names(res) <- rownames(coefs)
+  res
 }
 sarima_coef_table <- function(x, cov = NULL, ndf = NULL,...){
   m <- x
