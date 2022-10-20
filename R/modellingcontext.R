@@ -82,24 +82,46 @@ tsmoniker<-function(source, id){
 #' @param variables list of variables.
 #'
 #' @return list of calendars and variables
+#' @export
 #'
 #' @examples
-#' ts <- rjd3toolkit::ABS$X0.2.09.10.M
-#' xvar <- td(12, start=start(ts),length = length(ts),groups = c(1,1,1,1,1,0,0))
-#' context <- modelling_context(calendars = NULL, variables = list(xvar = xvar))
-#'
-#' @export
+#' BE<-national_calendar(list(
+#'     fixed_day(7,21),
+#'     special_day('NEWYEAR'),
+#'     special_day('CHRISTMAS'),
+#'     special_day('MAYDAY'),
+#'     special_day('EASTERMONDAY'),
+#'     special_day('ASCENSION'),
+#'     special_day('WHITMONDAY'),
+#'     special_day('ASSUMPTION'),
+#'     special_day('ALLSAINTSDAY'),
+#'     special_day('ARMISTICE')))
+#' FR<-national_calendar(list(
+#'     fixed_day(5,8),
+#'     fixed_day(7,14),
+#'     special_day('NEWYEAR'),
+#'     special_day('CHRISTMAS'),
+#'     special_day('MAYDAY'),
+#'     special_day('EASTERMONDAY'),
+#'     special_day('ASCENSION'),
+#'     special_day('WHITMONDAY'),
+#'     special_day('ASSUMPTION'),
+#'     special_day('ALLSAINTSDAY'),
+#'     special_day('ARMISTICE')))
+#' #simple list of ts
+#' vars<-list(v1=rjd3toolkit::ABS$X0.2.09.10.M, v2=rjd3toolkit::ABS$X0.2.05.10.M)
+#' MC<-modelling_context(calendars=list(BE=BE, FR=FR), variables<-vars)
 modelling_context<-function(calendars=NULL, variables=NULL){
   if (is.null(calendars))calendars<-list()
   if (is.null(variables))variables<-list()
   if (! is.list(calendars)) stop("calendars should be a list of calendars")
   if (length(calendars)>0) if (length(calendars) != length(which(sapply(calendars,function(z) is(z, 'JD3_CALENDARDEFINITION'))))) stop("calendars should be a list of calendars")
-  if (! is.list(variables)) stop("calendars should be a list of vars")
+  if (! is.list(variables)) stop("variables should be a list of vars")
   if (length(variables) != 0){
     # case of a simple ts dictionary
     if (! is.list(variables[[1]])){
-      # Use '@R' as the name of the dictionary
-      variables<-list(R=variables)
+      # Use 'r' as the name of the dictionary
+      variables<-list(r=variables)
     }
   }
 
@@ -109,7 +131,7 @@ modelling_context<-function(calendars=NULL, variables=NULL){
 
 #' @export
 #' @rdname jd3_utilities
-.p2r_modellingcontext<-function(p){
+.p2r_context<-function(p){
   n<-length(p$calendars)
   lcal <- lvar <- NULL
   if (n > 0){
@@ -128,7 +150,7 @@ modelling_context<-function(calendars=NULL, variables=NULL){
 
 #' @export
 #' @rdname jd3_utilities
-.r2p_modellingcontext<-function(r){
+.r2p_context<-function(r){
   p<-jd3.ModellingContext$new()
   n<-length(r$calendars)
   if (n > 0){
@@ -161,18 +183,27 @@ modelling_context<-function(calendars=NULL, variables=NULL){
     }
   }
   return (p)
-
 }
 
 #' @export
 #' @rdname jd3_utilities
-p2jd_context<-function(p){
+.p2jd_context<-function(p){
   bytes<-p$serialize(NULL)
   jcal <- .jcall("demetra/util/r/Modelling", "Ldemetra/timeseries/regression/ModellingContext;",
                 "of",
                 bytes)
   return (jcal)
 }
+
+#' @export
+#' @rdname jd3_utilities
+.jd2p_context<-function(jd){
+  bytes<-.jcall("demetra/util/r/Modelling", "[B", "toBuffer", jd)
+  p<-RProtoBuf::read(jd3.ModellingContext, bytes)
+  return (p)
+}
+
+
 #' @export
 #' @rdname jd3_utilities
 context2dict <- function(x) {
@@ -180,5 +211,19 @@ context2dict <- function(x) {
         "Ldemetra/util/r/Dictionary;",
         "fromContext",
         x)
+}
+
+#' @export
+#' @rdname jd3_utilities
+.jd2r_modellingcontext<-function(jcontext){
+  p<-.jd2p_context(jcontext)
+  return (.p2r_context(p))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2jd_modellingcontext<-function(r){
+  p<-.r2p_context(r)
+  return (.p2jd_context(p))
 }
 

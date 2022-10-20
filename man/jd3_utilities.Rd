@@ -43,10 +43,13 @@
 \alias{.p2r_datasupplier}
 \alias{.r2p_datasuppliers}
 \alias{.p2r_datasuppliers}
-\alias{.p2r_modellingcontext}
-\alias{.r2p_modellingcontext}
-\alias{p2jd_context}
+\alias{.p2r_context}
+\alias{.r2p_context}
+\alias{.p2jd_context}
+\alias{.jd2p_context}
 \alias{context2dict}
+\alias{.jd2r_modellingcontext}
+\alias{.r2jd_modellingcontext}
 \alias{p2r_regarima_rslts}
 \title{Java Utility Functions}
 \usage{
@@ -130,13 +133,19 @@ jd2r_ucarima(jucm)
 
 .p2r_datasuppliers(p)
 
-.p2r_modellingcontext(p)
+.p2r_context(p)
 
-.r2p_modellingcontext(r)
+.r2p_context(r)
 
-p2jd_context(p)
+.p2jd_context(p)
+
+.jd2p_context(jd)
 
 context2dict(x)
+
+.jd2r_modellingcontext(jcontext)
+
+.r2jd_modellingcontext(r)
 
 p2r_regarima_rslts(p)
 }

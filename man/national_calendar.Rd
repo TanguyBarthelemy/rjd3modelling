@@ -12,3 +12,16 @@ national_calendar(days)
 \description{
 Title
 }
+\examples{
+BE<-national_calendar(list(
+    fixed_day(7,21),
+    special_day('NEWYEAR'),
+    special_day('CHRISTMAS'),
+    special_day('MAYDAY'),
+    special_day('EASTERMONDAY'),
+    special_day('ASCENSION'),
+    special_day('WHITMONDAY'),
+    special_day('ASSUMPTION'),
+    special_day('ALLSAINTSDAY'),
+    special_day('ARMISTICE')))
+}

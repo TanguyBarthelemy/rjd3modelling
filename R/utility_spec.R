@@ -12,37 +12,33 @@ createVariable<-function(id, name = NULL, lag0 = 0, lag1 = 0, coef = NULL, regef
   if (is.null(name)) {
     name<-id
   }
-  res = list(id=id, name=name, lags=rlags(lag0, lag1), coef = NULL, regeffect=regeffect)
-  coef = fixedParameters(coef)
-  if (is.null(coef)) {
-    coef = fixedParameters(1)
-    coef[[1]]$value = 0
-    coef[[1]]$type = "ESTIMATED"
-  }
-  res["coef"] = coef
+  res = list(id=id, name=name, lags=rlags(lag0, lag1), coef = fixedParameters(coef), regeffect=regeffect)
   return (res)
 }
 
 #' @rdname utility-spec
 #' @export
 createRamp<-function(start, end, name = NULL, coef=NULL){
-  res = list(name=name, start=start, end=end, coef = NULL)
-  res["coef"] = fixedParameters(coef)
+  res = list(name=name, start=start, end=end, coef = fixedParameter(coef))
   return (res)
 }
 #' @rdname utility-spec
 #' @export
 createOutlier<-function(code, pos, name = NULL, coef=NULL){
-  res = list(name=name, pos=pos, code=code, coef = NULL)
-  res["coef"] = fixedParameters(coef)
+  res = list(name=name, pos=pos, code=code, coef = fixedParameter(coef))
   return (res)
 }
-#' @rdname utility-spec
-#' @export
+
 fixedParameters<-function(coef){
-  if (length(coef) == 0)return (NULL)
-  if (coef == 0) return (NULL)
-  return (lapply(coef, function(z){list(value=z, type="FIXED")}))
+  ncoef<-length(coef)
+  if (ncoef == 0)return (NULL)
+  l<-lapply(coef, function(v){list(value=v, type='FIXED')})
+  return (l)
 }
 
+fixedParameter<-function(coef){
+  if (is.null(coef)) return (NULL)
+  if (coef == 0) return (NULL)
+  return (list(value=coef, type='FIXED'))
+}
 

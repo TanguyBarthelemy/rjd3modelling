@@ -159,7 +159,7 @@ p2r_uservar<-function(p){
     id=p$id,
     name=p$name,
     lags=rlags(l0, l1),
-    coef=rjd3toolkit::p2r_parameter(p$coefficient[[1]]),
+    coef=lapply(p$coefficient, function(z){rjd3toolkit::p2r_parameter(z)}),
     regeffect=regeffect(p$metadata)
   ))
 }
@@ -178,7 +178,7 @@ r2p_uservar<-function(r){
     }else
       stop("Invalid lags")
   }
-  p$coefficient<-rjd3toolkit::r2p_parameter(r$coef)
+  p$coefficient<-rjd3toolkit::r2p_lparameters(r$coef)
   p$metadata<-modelling.TsVariable.MetadataEntry$new(key = "regeffect", value=r$regeffect)
   return (p)
 }

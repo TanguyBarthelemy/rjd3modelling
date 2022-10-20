@@ -5,7 +5,6 @@
 \alias{createVariable}
 \alias{createRamp}
 \alias{createOutlier}
-\alias{fixedParameters}
 \title{Utility Functions For Specifications}
 \usage{
 createVariable(
@@ -21,8 +20,6 @@ createVariable(
 createRamp(start, end, name = NULL, coef = NULL)
 
 createOutlier(code, pos, name = NULL, coef = NULL)
-
-fixedParameters(coef)
 }
 \arguments{
 \item{start, end, name, coef, code, pos, id, lag0, lag1, regeffect}{parameters.}

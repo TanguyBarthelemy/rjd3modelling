@@ -18,8 +18,30 @@ list of calendars and variables
 Create context
 }
 \examples{
-ts <- rjd3toolkit::ABS$X0.2.09.10.M
-xvar <- td(12, start=start(ts),length = length(ts),groups = c(1,1,1,1,1,0,0))
-context <- modelling_context(calendars = NULL, variables = list(xvar = xvar))
-
+BE<-national_calendar(list(
+    fixed_day(7,21),
+    special_day('NEWYEAR'),
+    special_day('CHRISTMAS'),
+    special_day('MAYDAY'),
+    special_day('EASTERMONDAY'),
+    special_day('ASCENSION'),
+    special_day('WHITMONDAY'),
+    special_day('ASSUMPTION'),
+    special_day('ALLSAINTSDAY'),
+    special_day('ARMISTICE')))
+FR<-national_calendar(list(
+    fixed_day(5,8),
+    fixed_day(7,14),
+    special_day('NEWYEAR'),
+    special_day('CHRISTMAS'),
+    special_day('MAYDAY'),
+    special_day('EASTERMONDAY'),
+    special_day('ASCENSION'),
+    special_day('WHITMONDAY'),
+    special_day('ASSUMPTION'),
+    special_day('ALLSAINTSDAY'),
+    special_day('ARMISTICE')))
+#simple list of ts
+vars<-list(v1=rjd3toolkit::ABS$X0.2.09.10.M, v2=rjd3toolkit::ABS$X0.2.05.10.M)
+MC<-modelling_context(calendars=list(BE=BE, FR=FR), variables<-vars)
 }
