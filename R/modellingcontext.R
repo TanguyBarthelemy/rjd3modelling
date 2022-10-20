@@ -56,6 +56,8 @@ tsmoniker<-function(source, id){
 .r2p_datasuppliers<-function(r){
   if (! is.list(r)) stop("Suppliers should be a list")
   ns<-names(r)
+  if (is.null(ns))
+    stop("All the variables of the list should be named")
   n<-length(ns)
   all<-lapply(1:n, function(z){.r2p_datasupplier(ns[z], r[[z]])})
   p<-jd3.TsDataSuppliers$new()
@@ -74,12 +76,12 @@ tsmoniker<-function(source, id){
   return (l)
 }
 
-#' Title
+#' Create context
 #'
-#' @param calendars Calendars
-#' @param variables Variables
+#' @param calendars list of calendars.
+#' @param variables list of variables.
 #'
-#' @return
+#' @return list of calendars and variables
 #' @export
 #'
 #' @examples
@@ -119,7 +121,7 @@ modelling_context<-function(calendars=NULL, variables=NULL){
     # case of a simple ts dictionary
     if (! is.list(variables[[1]])){
       # Use 'r' as the name of the dictionary
-      variables<-list(R=variables)
+      variables<-list(r=variables)
     }
   }
 
@@ -129,7 +131,7 @@ modelling_context<-function(calendars=NULL, variables=NULL){
 
 #' @export
 #' @rdname jd3_utilities
-.p2r_modellingcontext<-function(p){
+.p2r_context<-function(p){
   n<-length(p$calendars)
   lcal <- lvar <- NULL
   if (n > 0){
@@ -148,30 +150,80 @@ modelling_context<-function(calendars=NULL, variables=NULL){
 
 #' @export
 #' @rdname jd3_utilities
-.r2p_modellingcontext<-function(r){
+.r2p_context<-function(r){
   p<-jd3.ModellingContext$new()
   n<-length(r$calendars)
   if (n > 0){
     ns<-names(r$calendars)
-    lcal<-lapply(1:n, function(i){
+    # To take into account empty calendars
+    length_cal <- sapply(r$calendars, length)
+
+    lcal<-lapply((1:n)[length_cal!=0], function(i){
       entry<-jd3.ModellingContext$CalendarsEntry$new()
       entry$key<-ns[i]
       entry$value<-.r2p_calendardef(r$calendars[[i]])
       return(entry)
       })
-    p$calendars<-lcal
+    if (length(lcal) > 0) {
+      p$calendars<-lcal
+    }
   }
   n<-length(r$variables)
   if (n > 0){
     ns<-names(r$variables)
-    lvar<-lapply(1:n, function(i){
+    length_var <- sapply(r$variables, length)
+    lvar<-lapply((1:n)[length_var!=0], function(i){
       entry<-jd3.ModellingContext$VariablesEntry$new()
       entry$key<-ns[i]
       entry$value<-.r2p_datasuppliers(r$variables[[i]])
       return(entry)
       })
-    p$variables=lvar
+    if (length(lvar) > 0) {
+      p$variables=lvar
+    }
   }
   return (p)
+}
+
+#' @export
+#' @rdname jd3_utilities
+.p2jd_context<-function(p){
+  bytes<-p$serialize(NULL)
+  jcal <- .jcall("demetra/util/r/Modelling", "Ldemetra/timeseries/regression/ModellingContext;",
+                "of",
+                bytes)
+  return (jcal)
+}
+
+#' @export
+#' @rdname jd3_utilities
+.jd2p_context<-function(jd){
+  bytes<-.jcall("demetra/util/r/Modelling", "[B", "toBuffer", jd)
+  p<-RProtoBuf::read(jd3.ModellingContext, bytes)
+  return (p)
+}
+
+
+#' @export
+#' @rdname jd3_utilities
+context2dict <- function(x) {
+  .jcall("demetra/util/r/Dictionary",
+        "Ldemetra/util/r/Dictionary;",
+        "fromContext",
+        x)
+}
+
+#' @export
+#' @rdname jd3_utilities
+.jd2r_modellingcontext<-function(jcontext){
+  p<-.jd2p_context(jcontext)
+  return (.p2r_context(p))
+}
+
+#' @export
+#' @rdname jd3_utilities
+.r2jd_modellingcontext<-function(r){
+  p<-.r2p_context(r)
+  return (.p2jd_context(p))
 }
 

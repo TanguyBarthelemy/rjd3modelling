@@ -2,17 +2,20 @@
 % Please edit documentation in R/modellingcontext.R
 \name{modelling_context}
 \alias{modelling_context}
-\title{Title}
+\title{Create context}
 \usage{
 modelling_context(calendars = NULL, variables = NULL)
 }
 \arguments{
-\item{calendars}{Calendars}
+\item{calendars}{list of calendars.}
 
-\item{variables}{Variables}
+\item{variables}{list of variables.}
+}
+\value{
+list of calendars and variables
 }
 \description{
-Title
+Create context
 }
 \examples{
 BE<-national_calendar(list(
