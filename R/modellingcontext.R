@@ -3,6 +3,9 @@
 #' @include calendars.R
 NULL
 
+JD3_DYNAMICTS<-'JD3_DYNAMICTS'
+JD3_TSMONIKER<-'JD3_TSMONIKER'
+
 #' Title
 #'
 #' @param source Source of the time series
@@ -13,7 +16,7 @@ NULL
 #'
 #' @examples
 tsmoniker<-function(source, id){
-  return (structure(c(source=source, id=id), class=c('JD3_TSMONIKER')))
+  return (structure(c(source=source, id=id), class=c(JD3_TSMONIKER)))
 }
 
 #' @export
@@ -38,15 +41,33 @@ tsmoniker<-function(source, id){
   p<-jd3.TsDataSuppliers$Item$new()
   p$name<-name
   if (is.ts(r)) p$data<-rjd3toolkit::r2p_ts(r)
-  else if (is(r, 'JD3_TSMONIKER')) p$moniker<-.r2p_moniker(r)
+  else if (is(r, JD3_DYNAMICTS)) p$dynamic_data<-.r2p_dynamic_ts(r)
   else return (NULL)
+  return (p)
+}
+
+dynamicTs<-function(moniker, data){
+  return (structure(list(moniker=moniker, data=data), class=c(JD3_DYNAMICTS)))
+}
+
+.p2r_dynamic_ts<-function(p){
+  if (is.null(p)) return (NULL)
+  s<-rjd3toolkit::p2r_ts(p$current)
+  m<-.p2r_moniker(p$moniker)
+  return (dynamicTs(m, s))
+}
+
+.r2p_dynamic_ts<-function(r){
+  p<-jd3.DynamicTsData$new()
+  p$current<-rjd3toolkit:: r2p_ts(r$data)
+  p$moniker<-.r2p_moniker(r$moniker)
   return (p)
 }
 
 #' @export
 #' @rdname jd3_utilities
 .p2r_datasupplier<-function(p){
-  if (p$has('moniker')) return (.p2r_moniker(p$moniker))
+  if (p$has('dynamic_data')) return (.p2r_dynamic_ts(p$dynamic_data))
   if (p$has('data')) return (rjd3toolkit::p2r_ts(p$data))
   return (NULL)
 }
