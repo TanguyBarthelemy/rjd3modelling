@@ -23,7 +23,7 @@ SystemRequirements: Java JRE 17 or higher
 License: EUPL
 URL: https://github.com/palatej/rjd3modelling
 LazyData: TRUE
-RoxygenNote: 7.2.1
+RoxygenNote: 7.2.2
 Roxygen: list(markdown = TRUE)
 BugReports: https://github.com/palatej/rjd3modelling/issues
 Encoding: UTF-8
