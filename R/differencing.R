@@ -35,11 +35,16 @@ p2r_differencing<-function(p){
 #'
 #' @examples
 do.stationary<-function(data, period){
+  if (is.ts(data) & is.missing(period))
+    period <- frequency(data)
   jst<-.jcall("demetra/modelling/r/Differencing", "Ljdplus/modelling/StationaryTransformation;", "doStationary",
          as.numeric(data), as.integer(period))
   q<-.jcall("demetra/modelling/r/Differencing", "[B", "toBuffer", jst)
   p<-RProtoBuf::read(modelling.StationaryTransformation, q)
-  return (p2r_differencing(p))
+  res <- p2r_differencing(p)
+  if (is.ts(data))
+    res$ddata <- ts(res$ddata, end = end(data), frequency = frequency(data))
+  return (res)
 }
 
 #' Automatic differencing
@@ -65,12 +70,16 @@ do.stationary<-function(data, period){
 #' z<-rjd3modelling::differencing.fast(log(rjd3toolkit::ABS$X0.2.09.10.M),12)
 #'
 differencing.fast<-function(data, period, mad=TRUE, centile=90, k=1.2){
+  if (is.ts(data) & is.missing(period))
+    period <- frequency(data)
   jst<-.jcall("demetra/modelling/r/Differencing", "Ljdplus/modelling/StationaryTransformation;", "fastDifferencing",
               as.numeric(data), as.integer(period), as.logical(mad), centile, k)
   q<-.jcall("demetra/modelling/r/Differencing", "[B", "toBuffer", jst)
   p<-RProtoBuf::read(modelling.StationaryTransformation, q)
-  return (p2r_differencing(p))
-
+  res <- p2r_differencing(p)
+  if (is.ts(data))
+    res$ddata <- ts(res$ddata, end = end(data), frequency = frequency(data))
+  return (res)
 }
 
 #' Differencing of a series
@@ -86,8 +95,11 @@ differencing.fast<-function(data, period, mad=TRUE, centile=90, k=1.2){
 #' differences(rjd3toolkit::retail$BookStores, c(1,1,12), FALSE)
 #'
 differences<-function(data, lags=1, mean=TRUE){
-  return (.jcall("demetra/modelling/r/Differencing", "[D", "differences",
-                 as.numeric(data), .jarray(as.integer(lags)), mean))
+  res <- .jcall("demetra/modelling/r/Differencing", "[D", "differences",
+                as.numeric(data), .jarray(as.integer(lags)), mean)
+  if (is.ts(data))
+    res <- ts(res, end = end(data), frequency = frequency(data))
+  return (data)
 }
 
 #' Range-Mean Regression
