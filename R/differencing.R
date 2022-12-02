@@ -99,7 +99,7 @@ differences<-function(data, lags=1, mean=TRUE){
                 as.numeric(data), .jarray(as.integer(lags)), mean)
   if (is.ts(data))
     res <- ts(res, end = end(data), frequency = frequency(data))
-  return (data)
+  return (res)
 }
 
 #' Range-Mean Regression
