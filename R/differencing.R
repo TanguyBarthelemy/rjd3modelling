@@ -35,7 +35,7 @@ p2r_differencing<-function(p){
 #'
 #' @examples
 do.stationary<-function(data, period){
-  if (is.ts(data) & is.missing(period))
+  if (is.ts(data) & missing(period))
     period <- frequency(data)
   jst<-.jcall("demetra/modelling/r/Differencing", "Ljdplus/modelling/StationaryTransformation;", "doStationary",
          as.numeric(data), as.integer(period))
@@ -70,7 +70,7 @@ do.stationary<-function(data, period){
 #' z<-rjd3modelling::differencing.fast(log(rjd3toolkit::ABS$X0.2.09.10.M),12)
 #'
 differencing.fast<-function(data, period, mad=TRUE, centile=90, k=1.2){
-  if (is.ts(data) & is.missing(period))
+  if (is.ts(data) & missing(period))
     period <- frequency(data)
   jst<-.jcall("demetra/modelling/r/Differencing", "Ljdplus/modelling/StationaryTransformation;", "fastDifferencing",
               as.numeric(data), as.integer(period), as.logical(mad), centile, k)
