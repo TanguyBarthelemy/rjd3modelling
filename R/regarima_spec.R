@@ -1099,8 +1099,7 @@ set_transform.default <- function(x,
 add_usrdefvar<- function(x,
                          id,
                          name = NULL,
-                         lag0 = 0,
-                         lag1 = 0,
+                         lag = 0,
                          coef = NULL,
                          regeffect=c("Undefined", "Trend", "Seasonal", "Irregular", "Series", "SeasonallyAdjusted")) {
   UseMethod("add_usrdefvar", x)
@@ -1109,12 +1108,11 @@ add_usrdefvar<- function(x,
 add_usrdefvar.default <- function(x,
                                   id,
                                   name = NULL,
-                                  lag0 = 0,
-                                  lag1 = 0,
+                                  lag = 0,
                                   coef = NULL,
                                   regeffect=c("Undefined", "Trend", "Seasonal", "Irregular", "Series", "SeasonallyAdjusted")) {
   x$regression$users[[length(x$regression$users) + 1]] <-
-    createVariable(id = id, name = name, lag0 = lag0, lag1 = lag1, coef = coef, regeffect = regeffect)
+    createVariable(id = id, name = name, lag = lag, coef = coef, regeffect = regeffect)
   x
 }
 

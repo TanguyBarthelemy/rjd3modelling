@@ -116,7 +116,7 @@ r2p_ramp<-function(r){
   p$name<-r$name
   p$start<-rjd3toolkit::r2p_date(r$start)
   p$end<-rjd3toolkit::r2p_date(r$end)
-  p$coefficient<-rjd3toolkit::r2p_parameter(r$coefficient)
+  p$coefficient<-rjd3toolkit::r2p_parameter(r$coef)
   return (p)
 }
 
@@ -135,15 +135,6 @@ r2p_ramps<-function(r){
   return (lapply(r, function(z){r2p_ramp(z)}))
 }
 
-rlags<-function(l0, l1){
-  if (l0 == 0 && l1 == 0) {return (NULL)}
-  if (l0 == l1){return (l0)}
-  else {
-    if (l1 < l0) stop("Invalid lags")
-    return (c(l0, l1))
-  }
-}
-
 regeffect<-function(map){
   if(length(map) == 0)
     return("Undefined")
@@ -153,13 +144,12 @@ regeffect<-function(map){
 }
 
 p2r_uservar<-function(p){
-  l0<-p$first_lag
-  l1<-p$last_lag
+  l<-p$lag
   return (list(
     id=p$id,
     name=p$name,
-    lags=rlags(l0, l1),
-    coef=lapply(p$coefficient, function(z){rjd3toolkit::p2r_parameter(z)}),
+    lag=l,
+    coef=rjd3toolkit::p2r_parameter(p$coefficient),
     regeffect=regeffect(p$metadata)
   ))
 }
@@ -168,17 +158,8 @@ r2p_uservar<-function(r){
   p<-modelling.TsVariable$new()
   p$name<-r$name
   p$id<-r$id
-  if (! is.null(r$lags)){
-    if (length(r$lags) ==1){
-      p$first_lag<-r$lags[1]
-      p$last_lag<-r$lags[1]
-    }else if (length(r$lags) ==2){
-      p$first_lag<-r$lags[1]
-      p$last_lag<-r$lags[2]
-    }else
-      stop("Invalid lags")
-  }
-  p$coefficient<-rjd3toolkit::r2p_lparameters(r$coef)
+  p$lag<-r$lag
+  p$coefficient<-rjd3toolkit::r2p_parameter(r$coef)
   p$metadata<-modelling.TsVariable.MetadataEntry$new(key = "regeffect", value=r$regeffect)
   return (p)
 }
@@ -204,8 +185,8 @@ p2r_variables<-function(p){
 p2r_variable<-function(p){
   name<-p$name
   type<-rjd3toolkit::enum_extract(modelling.VariableType, p$var_type)
-  coeff<-rjd3toolkit::p2r_parameters_rsltx(p$coefficients)
-  return (list(name=name, type=type, coeff=coeff))
+  coef<-rjd3toolkit::p2r_parameters_rsltx(p$coefficients)
+  return (list(name=name, type=type, coef=coef))
 }
 
 

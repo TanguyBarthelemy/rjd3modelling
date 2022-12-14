@@ -7,12 +7,12 @@
 #' @name utility-spec
 #' @rdname utility-spec
 #' @export
-createVariable<-function(id, name = NULL, lag0 = 0, lag1 = 0, coef = NULL, regeffect=c("Undefined", "Trend", "Seasonal", "Irregular", "Series", "SeasonallyAdjusted")){
+createVariable<-function(id, name = NULL, lag = 0, coef = NULL, regeffect=c("Undefined", "Trend", "Seasonal", "Irregular", "Series", "SeasonallyAdjusted")){
   regeffect=match.arg(regeffect)
   if (is.null(name)) {
     name<-id
   }
-  res = list(id=id, name=name, lags=rlags(lag0, lag1), coef = fixedParameters(coef), regeffect=regeffect)
+  res = list(id=id, name=name, lag=lag, coef = fixedParameter(coef), regeffect=regeffect)
   return (res)
 }
 

@@ -1,7 +1,7 @@
 Package: rjd3modelling
 Type: Package
 Title: Time Series Modelling Functions with 'JDemetra+ 3.0'
-Version: 0.5.2
+Version: 0.6.0
 Authors@R: c(
   person("Jean", "Palate", role = c("aut", "cre"),
                 email = "jean.palate@nbb.be"),
@@ -16,14 +16,14 @@ Depends:
 Imports:
   rJava (>= 1.0-6),
 	RProtoBuf (>= 0.4.17),
-  rjd3toolkit (>= 0.5.2),
+  rjd3toolkit (>= 0.6.0),
   methods,
   checkmate
 SystemRequirements: Java JRE 17 or higher
 License: EUPL
 URL: https://github.com/palatej/rjd3modelling
 LazyData: TRUE
-RoxygenNote: 7.2.2
+RoxygenNote: 7.2.3
 Roxygen: list(markdown = TRUE)
 BugReports: https://github.com/palatej/rjd3modelling/issues
 Encoding: UTF-8

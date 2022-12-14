@@ -9,8 +9,8 @@ fixed_week_day(month, week, dayofweek, weight = 1, validity = NULL)
 \arguments{
 \item{month}{Month of the holiday}
 
-\item{week}{Position of the specified week day in the month (3 = third <dayofweek> of the month... ). Should be always lower than 5.
--1 for the last <dayofweek> of the month}
+\item{week}{Position of the specified week day in the month (3 = third \if{html}{\out{<dayofweek>}} of the month... ). Should be always lower than 5.
+-1 for the last \if{html}{\out{<dayofweek>}} of the month}
 
 \item{dayofweek}{Day of week 1 for Monday, 7 for Sunday}
 

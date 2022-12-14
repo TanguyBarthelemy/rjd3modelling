@@ -10,8 +10,7 @@
 createVariable(
   id,
   name = NULL,
-  lag0 = 0,
-  lag1 = 0,
+  lag = 0,
   coef = NULL,
   regeffect = c("Undefined", "Trend", "Seasonal", "Irregular", "Series",
     "SeasonallyAdjusted")
